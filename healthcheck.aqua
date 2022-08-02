@@ -1,0 +1,138 @@
+use "@fluencelabs/registry/routing.aqua" as Registry
+use "@fluencelabs/registry/registry-api.aqua" as RegistryApi
+import RouteId from "@fluencelabs/registry/routing.aqua"
+import Record, PutHostRecordResult from "@fluencelabs/registry/registry.aqua"
+import "@fluencelabs/aqua-lib/builtin.aqua"
+
+
+service Console("run-console"):
+  print(res: RouteId)
+
+service ConsoleStr("run-console"):
+    print(s: string)
+
+service ConsoleStrArr("run-console"):
+    print(s: []string)
+
+service ConsolePutPut("run-console"):
+  print(res: PutHostRecordResult)
+
+-- service ConsoleErr("run-cons")
+
+data Monitor:
+    route_id: RouteId
+    subscriptions: []RouteId
+
+data HealthStatus:
+    route_id: RouteId
+    service_id: string
+    check_name: string
+    status: bool -- / string ("OK", "Error message:")
+
+service Healthcheck("healthcheck"):
+    monitor(route: RouteId)
+    subscribe(monitored_route: RouteId, subscriber: RouteId)
+    
+    get_monitors() -> []Monitor
+
+    doesnt_exist(record: Record) -> HealthStatus
+
+service HasHealth:
+    check_health() -> []HealthStatus
+
+service HealthSubscriber:
+    report(statuses: []HealthStatus)
+
+-- const NODE_ID = "12D3KooWHLxVhUQyAuZe6AHMB29P7wkvTNMn7eDMcsqimJYLKREf"
+
+--   fluence-0: # /ip4/127.0.0.1/tcp/9990/ws/p2p/12D3KooWHBG9oaVx4i3vi6c1rSBUm7MLBmyGmmbHoZ23pmjDCnvK
+--   fluence-1: # /ip4/127.0.0.1/tcp/9991/ws/p2p/12D3KooWRABanQHUn28dxavN9ZS1zZghqoZVAYtFpoN7FdtoGTFv
+--   fluence-2: # /ip4/127.0.0.1/tcp/9992/ws/p2p/12D3KooWFpQ7LHxcC9FEBUh3k4nSCC12jBhijJv3gJbi7wsNYzJ5
+
+const NODE_ID = "12D3KooWSD5PToNiLQwKDXsu8JSysCwUt8BVUJEqCHcDe7P5h45e"
+
+func opt(s: string) -> ?string:
+    ss: *string
+    ss <<- s
+    <- ss
+
+func iterateBytes() -> RouteId:
+    route_id <- Registry.createRoute("test")
+    for node <- [ "12D3KooWHBG9oaVx4i3vi6c1rSBUm7MLBmyGmmbHoZ23pmjDCnvK", "12D3KooWRABanQHUn28dxavN9ZS1zZghqoZVAYtFpoN7FdtoGTFv", "12D3KooWFpQ7LHxcC9FEBUh3k4nSCC12jBhijJv3gJbi7wsNYzJ5" ]:
+    -- for node <- [ "12D3KooWSD5PToNiLQwKDXsu8JSysCwUt8BVUJEqCHcDe7P5h45e", "12D3KooWR4cv1a8tv7pps4HH6wePNaK6gf1Hww5wcCMzeWxyNw51", "12D3KooWKnEqMfYo9zvfHmqTLpLdiHXPe4SVqUWcWHDJdFGrSmcA" ]:
+        try:
+            t <- Peer.timestamp_sec()
+            try:
+                record_signature <- RegistryApi.getHostRecordSignature(node, route_id, "", nil, opt("aqua-ipfs"), t)
+            catch e:
+                ConsoleStr.print(e.instruction)
+            on node:
+                try:
+                    r <- RegistryApi.putHostRecord(route_id, "", nil, opt("aqua-ipfs"), t, record_signature)
+                    on INIT_PEER_ID via HOST_PEER_ID:
+                        ConsolePutPut.print(r)
+                catch e:
+                    on INIT_PEER_ID via HOST_PEER_ID:
+                        ConsoleStr.print(e.instruction)
+                try:
+                    RegistryApi.propagateHostRecord(r)
+                catch e:
+                    on INIT_PEER_ID via HOST_PEER_ID:
+                        ConsoleStr.print(e.instruction)
+        catch e:
+            ConsoleStr.print(e.instruction)
+
+    <- route_id
+
+
+func registerServices() -> RouteId:
+    route_id <- Registry.createRoute("test")
+    -- for node <- [ "12D3KooWHBG9oaVx4i3vi6c1rSBUm7MLBmyGmmbHoZ23pmjDCnvK", "12D3KooWRABanQHUn28dxavN9ZS1zZghqoZVAYtFpoN7FdtoGTFv", "12D3KooWFpQ7LHxcC9FEBUh3k4nSCC12jBhijJv3gJbi7wsNYzJ5" ]:
+    -- for node <- [ "12D3KooWSD5PToNiLQwKDXsu8JSysCwUt8BVUJEqCHcDe7P5h45e", "12D3KooWR4cv1a8tv7pps4HH6wePNaK6gf1Hww5wcCMzeWxyNw51", "12D3KooWKnEqMfYo9zvfHmqTLpLdiHXPe4SVqUWcWHDJdFGrSmcA" ]:
+ 
+ 
+--  "12D3KooWEXNUbCXooUwHrHBbrmjsrpHXoEphPwbjQXEGyzbqKnE9", "12D3KooWMhVpgfQxBLkQkJed8VFNvgN4iE6MD7xCybb1ZYWW2Gtz", "12D3KooWHk9BjDQBUqnavciRPhAYFvqKBe4ZiPPvde7vDaqgn5er", "12D3KooWBUJifCTgaxAUrcM9JysqCcS4CS8tiYH5hExbdWCAoNwb", "12D3KooWJbJFaZ3k5sNd8DjQgg3aERoKtBAnirEvPV8yp76kEXHB", "12D3KooWCKCeqLPSgMnDjyFsJuWqREDtKNHx1JEBiwaMXhCLNTRb", "12D3KooWKnRcsTpYx9axkJ6d69LPfpPXrkVLe96skuPTAo76LLVH", "12D3KooWBSdm6TkqnEFrgBuSkpVE3dR1kr6952DsWQRNwJZjFZBv", "12D3KooWGzNvhSDsgFoHwpWHAyPf1kcTYCGeRBPfznL8J6qdyu2H", "12D3KooWF7gjXhQ4LaKj6j7ntxsPpGk34psdQicN2KNfBi9bFKXg", "12D3KooWB9P1xmV3c7ZPpBemovbwCiRRTKd3Kq2jsVPQN4ZukDfy"
+
+    for node <- [ "12D3KooWEXNUbCXooUwHrHBbrmjsrpHXoEphPwbjQXEGyzbqKnE9", "12D3KooWMhVpgfQxBLkQkJed8VFNvgN4iE6MD7xCybb1ZYWW2Gtz", "12D3KooWHk9BjDQBUqnavciRPhAYFvqKBe4ZiPPvde7vDaqgn5er", "12D3KooWBUJifCTgaxAUrcM9JysqCcS4CS8tiYH5hExbdWCAoNwb" ]:
+        ConsoleStr.print(node)
+        try:
+            Registry.registerForRouteNode(node, route_id, "", opt("aqua-ipfs"))
+        catch e:
+            ConsoleStr.print(e.instruction)
+        -- Registry.registerForRouteNode(node, route_id, "", opt("non-existent-service"))
+
+    <- route_id
+
+
+
+
+-- func execute_healthchecks():
+--     -- builtin service Healthcheck
+--     monitors <- Healthcheck.get_monitors()
+
+--     for monitor <- monitors:
+--         -- resolve route to services
+--         records <- Registry.resolveRoute(monitor.route_id, 1)
+--         -- for every service in route:
+--         statuses: *HealthStatus
+--         for record <- records:
+--         -- TODO: filter records that don't have service_id
+--             on record.peer_id via record.relay_id:
+--                 -- check existence
+--                 try:
+--                     interface <- Srv.get_interface(record.service_id!)
+--                 catch:
+--                     statuses <<- Healthcheck.doesnt_exist(record)
+--                 -- check memory
+--                 -- ???
+--                 -- get healthcheck functions
+--                 HasHealth record.service_id!
+--                 statuses <- HasHealth.check_health()
+        
+--         -- resolve subscribers
+--         for sub <- monitor.subscriptions:
+--             subscribers <- Registry.resolveRoute(monitor.route_id, 1)
+--             for subscriber <- subscribers par:
+--                 on subscriber.peer_id via subscriber.relay_id:
+--                     HealthSubscriber subscriber.service_id
+--                     HealthSubscriber.report(statuses)

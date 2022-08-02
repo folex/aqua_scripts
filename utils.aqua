@@ -1,0 +1,6 @@
+import "@fluencelabs/aqua-lib/builtin.aqua"
+
+func list_scheduled() -> []ScriptInfo:
+    on HOST_PEER_ID:
+        scripts <- Script.list()
+    <- scripts

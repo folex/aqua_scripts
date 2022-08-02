@@ -1,0 +1,5 @@
+func multi() -> string, string:
+    <- "a", "b"
+
+func bug() -> string, string:
+    <- multi(), multi()

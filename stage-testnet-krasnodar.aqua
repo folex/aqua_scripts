@@ -1,0 +1,12 @@
+import "@fluencelabs/aqua-lib/builtin.aqua"
+
+service Console("run-console"):
+    print(msg: string)
+
+func reach(node: PeerId) -> string:
+    status: *string
+    on node:
+        st <- Op.identity(?["reachable"])
+        status <<- st!
+    par status <- Peer.timeout(10000, "unreachable")
+    <- status!

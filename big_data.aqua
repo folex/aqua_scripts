@@ -1,0 +1,34 @@
+import "@fluencelabs/aqua-lib/builtin.aqua"
+
+service Console("run-console"):
+    print(nodes: []string)
+
+service ConsoleNum("run-console"):
+    print(num: u32)
+
+func print(nodes: []string):
+    on INIT_PEER_ID via HOST_PEER_ID:
+        co ConsoleNum.print(Op.array_length(nodes))
+
+func make_it_big() -> []string:
+    nodes: *string
+
+    on HOST_PEER_ID:
+        neighborhood <- Kademlia.neighborhood(HOST_PEER_ID, nil, nil)
+        for n <- neighborhood par:
+            on n:
+                nodes <<- Op.concat_strings(n, "REACHABLE")
+                neigh <- Kademlia.neighborhood(n, nil, nil)
+                for nn <- neigh par:
+                    nodes <<- Op.concat_strings(nn, "REACHABLE")
+                    on nn:
+                        neigh2 <- Kademlia.neighborhood(nn, nil, nil)
+                        for nnn <- neigh2 par:
+                            on nnn:
+                                nodes <<- Op.concat_strings(nnn, "REACHABLE")
+                                co print(nodes)
+
+        on INIT_PEER_ID via HOST_PEER_ID:
+            -- ConsoleNum.print(Op.array_length(neighborhood) * 3)
+            join nodes[Op.array_length(neighborhood) * 3]
+    <- nodes

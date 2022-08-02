@@ -1,0 +1,12 @@
+import "@fluencelabs/aqua-lib/builtin.aqua"
+
+const NODE = "12D3KooWSD5PToNiLQwKDXsu8JSysCwUt8BVUJEqCHcDe7P5h45e"
+
+func listServices() -> []Service:
+    on HOST_PEER_ID:
+        services <- Srv.list()
+    <- services
+
+-- func removeServices(service_ids: []string):
+--     on NODE:
+--         blueprints <- Dist.list_blueprints()

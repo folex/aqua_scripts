@@ -1,0 +1,4 @@
+func test():
+    a = true
+    if !a:
+        b = false

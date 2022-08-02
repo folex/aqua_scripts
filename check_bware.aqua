@@ -1,0 +1,9 @@
+import "@fluencelabs/aqua-lib/builtin.aqua"
+
+func fromBwareToFluence() -> []string:
+    -- on "12D3KooWKnEqMfYo9zvfHmqTLpLdiHXPe4SVqUWcWHDJdFGrSmcA":
+    on HOST_PEER_ID:
+        info <- Peer.identify()
+        hood <- Kademlia.neighborhood(INIT_PEER_ID, nil, nil)
+
+    <- hood

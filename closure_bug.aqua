@@ -1,0 +1,17 @@
+service MyService("my-service"):
+    foo(s: string) -> string
+
+func test():
+    closure = (msg: string) -> string:
+        <- MyService.foo(msg)
+
+    on HOST_PEER_ID:
+        res <- closure("hello!")
+
+func workaround():
+    closure = (msg: string) -> string:
+        res <- MyService.foo(msg)
+        <- res
+
+    on HOST_PEER_ID:
+        res <- closure("hello!")

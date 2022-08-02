@@ -1,0 +1,8 @@
+service Simple("simple"):
+    function(name: string) -> string
+
+service Ipfs("ipfs_client"):
+    id(multiaddr: string) -> string
+
+func test() -> string:
+    <- Ipfs.id("/ip4/134.209.186.43/tcp/5003/p2p/12D3KooWFjSJwky2boJvG9VeRaP7nBrTEgg4niTTezFJLXz2MJNB")

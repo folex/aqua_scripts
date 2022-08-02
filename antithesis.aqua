@@ -1,0 +1,51 @@
+import "@fluencelabs/aqua-lib/builtin.aqua"
+
+service OpString("op"):
+    concat_strings(a: string, b: string, c: string) -> string
+
+func checkNodeIsUp(targetNode: PeerId, validatorNodes: []PeerId, timeout: u32) -> []string:
+    statuses: *string
+
+    for validator <- validatorNodes par:
+        validatorStatus: ?string
+
+        -- check validators are reachable
+        on validator:
+            Op.noop()
+            validatorStatus <- OpString.concat_strings("Validator ", validator, "is reachable")
+        par validatorStatus <- Peer.timeout(timeout, OpString.concat_strings("Validator ", validator, " timed out"))
+
+        join validatorStatus[0]
+
+        vst = validatorStatus[0]
+        -- if validator was reachable
+        if vst == OpString.concat_strings("Validator ", validator, "is reachable"):
+            targetStatus: ?string
+
+            -- check that node is reachable from that validator
+            on targetNode via validator:
+                Op.noop()
+                targetStatus <- OpString.concat_strings("Target ", "is reachable from ", validator)
+            par targetStatus <- Peer.timeout(timeout, OpString.concat_strings("Target ", "is not reachable from ", validator))
+
+            join targetStatus[0]
+            statuses <<- targetStatus[0]
+        else:
+            statuses <<- validatorStatus[0]
+
+    join statuses[Op.array_length(validatorNodes) - 1]
+    <- statuses
+
+-- Goal:
+--  check that targetNode is reachable from each validator
+
+-- target:
+--  12D3KooWSD5PToNiLQwKDXsu8JSysCwUt8BVUJEqCHcDe7P5h45e
+
+-- validators
+--  12D3KooWR4cv1a8tv7pps4HH6wePNaK6gf1Hww5wcCMzeWxyNw51
+--  12D3KooWKnEqMfYo9zvfHmqTLpLdiHXPe4SVqUWcWHDJdFGrSmcA
+-- ["12D3KooWR4cv1a8tv7pps4HH6wePNaK6gf1Hww5wcCMzeWxyNw51", "12D3KooWKnEqMfYo9zvfHmqTLpLdiHXPe4SVqUWcWHDJdFGrSmcA"]
+
+-- relay / entrypoint
+--  /dns4/kras-02.fluence.dev/tcp/19001/wss/p2p/12D3KooWHLxVhUQyAuZe6AHMB29P7wkvTNMn7eDMcsqimJYLKREf

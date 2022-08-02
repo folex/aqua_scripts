@@ -1,0 +1,13 @@
+import "@fluencelabs/aqua-lib/builtin.aqua"
+
+func getNeighbours() -> []string:
+  nodes <- Kademlia.neighborhood("123", nil, nil)
+  <- nodes
+
+func bugLNG59() -> string:
+  on HOST_PEER_ID:
+    nodes <- getNeighbours()
+    n = nodes[0]
+    on n:
+      res <- Op.identity(?["some str"])
+  <- res!

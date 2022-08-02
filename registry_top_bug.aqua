@@ -1,0 +1,34 @@
+import "@fluencelabs/aqua-lib/builtin.aqua"
+
+func registerNodeProvider(provider_node_id: PeerId) -> string:
+  status: *string
+  status <<- "ok"
+  <- status!
+
+
+func registerNodeProvider2(provider_node_id: PeerId) -> bool:
+  success: *bool
+
+  on provider_node_id:
+    k <- Op.string_to_b58("blabla")
+    nodes <- Kademlia.neighborhood(k, nil, nil)
+    for n <- nodes par:
+      on n:
+        Op.noop()
+
+    status: *string
+    if true:
+      status <<- "ok"
+    else:
+      status <<- "not ok"
+
+    if status! == "ok":
+      success <<- true
+    else:
+      success <<- false
+
+    if success! == false:
+      Op.noop()
+
+  <- success!
+

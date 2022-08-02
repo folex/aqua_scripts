@@ -1,0 +1,6 @@
+import "@fluencelabs/aqua-lib/builtin.aqua"
+
+func bug():
+    stream: *string
+    if Op.identity(stream) == Op.identity(stream):
+        Op.noop()

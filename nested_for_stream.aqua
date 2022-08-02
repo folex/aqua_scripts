@@ -1,0 +1,15 @@
+service Console("run-console"):
+    print(stream: *string)
+
+service Op("op"):
+    identity(s: string) -> string
+
+func iterate():
+    stream: *string
+    for o <- ["1", "2", "3"]:
+        for i <- ["a", "b", "c", "d", "e"]:
+            ov <- Op.identity(o)
+            stream <<- ov
+            iv <- Op.identity(i)
+            stream <<- iv
+            Console.print(stream)

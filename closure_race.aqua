@@ -1,0 +1,15 @@
+import "@fluencelabs/aqua-lib/builtin.aqua"
+
+func test() -> string:
+    successful: *bool
+    successful <<- true
+
+    waiting = (s: *string):
+      join successful[0]
+      s <<- "ok"
+
+    status: *string
+    waiting(status)
+    par status <- Peer.timeout(1000, "timeout")
+
+  <- status!

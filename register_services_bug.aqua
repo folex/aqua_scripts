@@ -1,0 +1,22 @@
+use "@fluencelabs/registry/routing.aqua" as Registry
+import RouteId from "@fluencelabs/registry/routing.aqua"
+
+service ConsoleStr("run-console"):
+    print(s: string)
+
+func opt(s: string) -> ?string:
+    ss: *string
+    ss <<- s
+    <- ss
+
+func registerServices() -> RouteId:
+    route_id <- Registry.createRoute("test") 
+ 
+    for node <- [ "12D3KooWEXNUbCXooUwHrHBbrmjsrpHXoEphPwbjQXEGyzbqKnE9", "12D3KooWMhVpgfQxBLkQkJed8VFNvgN4iE6MD7xCybb1ZYWW2Gtz", "12D3KooWHk9BjDQBUqnavciRPhAYFvqKBe4ZiPPvde7vDaqgn5er", "12D3KooWBUJifCTgaxAUrcM9JysqCcS4CS8tiYH5hExbdWCAoNwb" ]:
+        ConsoleStr.print(node)
+        try:
+            Registry.registerForRouteNode(node, route_id, "", opt("aqua-ipfs"))
+        catch e:
+            ConsoleStr.print(e.instruction)
+    <- route_id
+

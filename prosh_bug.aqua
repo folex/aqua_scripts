@@ -1,0 +1,101 @@
+import "@fluencelabs/aqua-lib/builtin.aqua"
+
+service Console("run-console"):
+    print(msg: string)
+
+func original(other_node: PeerId) -> bool:
+  success: *bool
+
+  on other_node:
+    k <- Op.string_to_b58("blabla")
+    nodes <- Kademlia.neighborhood(k, nil, nil)
+    for n <- nodes par:
+      on n:
+        Op.noop()
+
+    status: *string
+    if true:
+      status <<- "ok"
+    else:
+      status <<- "not ok"
+
+    if status! == "ok":
+      success <<- true
+    else:
+      success <<- false
+
+    if success! == false:
+      Op.noop()
+
+  <- success!
+
+func fails1(other_node: PeerId) -> bool:
+  success: *bool
+
+  on other_node:
+    k <- Op.string_to_b58("blabla")
+    nodes <- Kademlia.neighborhood(k, nil, nil)
+    for n <- nodes par:
+      on n:
+        Op.noop()
+
+    success <<- true
+
+    if success! == false:
+      Op.noop()
+
+  <- success!
+
+func fails2(other_node: PeerId) -> bool:
+  success: *bool
+
+  on other_node:
+    Op.noop()
+
+    success <<- true
+
+    if false:
+      Op.noop()
+
+  <- true
+
+func fails3(other_node: PeerId) -> bool:
+  on other_node:
+    Op.noop()
+
+    if false:
+      Op.noop()
+
+  <- true
+
+func works2(other_node: PeerId) -> bool:
+  on other_node:
+    Op.noop()
+
+  if false:
+    Op.noop()
+
+  <- true
+
+
+func works1(other_node: PeerId) -> bool:
+  success: *bool
+
+  on other_node:
+    Op.noop()
+    success <<- true
+
+  on INIT_PEER_ID via HOST_PEER_ID:
+    Op.noop()
+
+  <- success!
+
+
+func works0(other_node: PeerId) -> bool:
+  on other_node:
+    Op.noop()
+
+--   on INIT_PEER_ID via HOST_PEER_ID:
+--     Op.noop()
+
+  <- true
