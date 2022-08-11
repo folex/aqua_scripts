@@ -1,0 +1,9 @@
+import "@fluencelabs/aqua-lib/builtin.aqua"
+
+service GoodPeer("peer"):
+    get_contact(peer: PeerId) -> ?Contact
+
+func get_contact(peer: PeerId) -> ?Contact:
+    on HOST_PEER_ID:
+        c <- GoodPeer.get_contact(peer)
+    <- c

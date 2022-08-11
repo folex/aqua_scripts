@@ -1,0 +1,41 @@
+import "@fluencelabs/aqua-lib/builtin.aqua"
+
+data SeriesStat:
+   avg: f64
+   series: []f64
+   total: f64
+
+data Stats:
+  success_req_count: u64
+  failed_req_count: u64
+  call_time_sec: SeriesStat
+  memory_deltas_bytes: SeriesStat
+  timestamps: []u64
+
+data FunctionStat:
+  name: string
+  stats: Stats
+
+data ServiceStat:
+  total_stats: Stats
+  functions_stats: []FunctionStat
+
+data StatResult:
+  status: bool
+  error: string
+  result: ?ServiceStat
+
+data MemoryStat:
+  name: string
+  memory_size_bytes: u64
+  max_memory_size_bytes: u64
+
+service Stat("stat"):
+  service_stat(service_id: string) -> StatResult
+  service_memory(service_id: string) -> []MemoryStat
+
+
+func get_service_stat(service_id: string) -> StatResult:
+  on HOST_PEER_ID:
+    res <- Stat.service_stat(service_id)
+  <- res

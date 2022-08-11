@@ -1,0 +1,37 @@
+import "@fluencelabs/aqua-lib/builtin.aqua"
+
+-- request response
+func get_info() -> Info, PeerId:
+    on HOST_PEER_ID:
+        info <- Peer.identify()
+    <- info, HOST_PEER_ID
+
+func get_infos(peers: []PeerId) -> []Info:
+    infos: *Info
+    for p <- peers:
+        on p:
+            infos <- Peer.identify()
+    <- infos
+
+func get_infos_par(peers: []PeerId) -> []Info:
+    infos: *Info
+    for p <- peers par:
+        on p:
+            infos <- Peer.identify()
+    join infos[Op.array_length(peers) - 1] -- "-1" because it's 0-based
+    <- infos
+
+func get_peer_ids_par(peers: []PeerId) -> []PeerId:
+    peerids: *PeerId
+    for p <- peers par:
+        on p:
+            peerids <<- p
+    join peerids[Op.array_length(peers) - 1] -- "-1" because it's 0-based
+    <- peerids
+
+-- TODO:
+-- gather infos from several peers
+-- gather infos in parallel
+-- show both aqua run and js
+-- join with timeout
+-- check node is reachable
