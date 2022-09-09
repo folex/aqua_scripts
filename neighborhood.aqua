@@ -1,0 +1,9 @@
+import "@fluencelabs/aqua-lib/builtin.aqua"
+
+service MyKademlia("kad"):
+    neigh_with_addrs(key: Base58String, already_hashed: ?bool, count: ?u32) -> []Contact
+
+func get_addr_book() -> []Contact:
+    on HOST_PEER_ID:
+        neigh <- MyKademlia.neigh_with_addrs(INIT_PEER_ID, nil, ?[1000])
+    <- neigh
