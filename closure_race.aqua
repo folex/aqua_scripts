@@ -13,3 +13,18 @@ func test() -> string:
     par status <- Peer.timeout(1000, "timeout")
 
   <- status!
+
+func take_closure(f: string -> bool) -> bool:
+  <- f("hello")
+
+func test_pass_closure() -> bool:
+  f = (s: string) -> bool:
+    <- true
+
+  <- take_closure(f)
+
+func true_for_string(s: string) -> bool:
+  <- true
+
+func test_pass_func() -> bool:
+  <- take_closure(true_for_string)

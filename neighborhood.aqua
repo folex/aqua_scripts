@@ -3,7 +3,71 @@ import "@fluencelabs/aqua-lib/builtin.aqua"
 service MyKademlia("kad"):
     neigh_with_addrs(key: Base58String, already_hashed: ?bool, count: ?u32) -> []Contact
 
+service Oop("op"):
+    array_length(cs: []Contact) -> u32
+
 func get_addr_book() -> []Contact:
     on HOST_PEER_ID:
         neigh <- MyKademlia.neigh_with_addrs(INIT_PEER_ID, nil, ?[1000])
     <- neigh
+
+func lots_of_neighs() -> [][]Contact:
+    all: *[]Contact
+    on HOST_PEER_ID:
+        neigh <- MyKademlia.neigh_with_addrs(INIT_PEER_ID, nil, ?[1000])
+
+        for n <- neigh par:
+            on n.peer_id via HOST_PEER_ID:
+                all <- MyKademlia.neigh_with_addrs(INIT_PEER_ID, nil, ?[1000])
+
+        join all[Oop.array_length(neigh) / 2]
+        par Peer.timeout(PARTICLE_TTL / 2, "")
+
+    <- all
+
+func get_infos0() -> []Info:
+    infos: *Info
+    success: ?bool
+    on HOST_PEER_ID:
+        -- peers = ["12D3KooWKvG1PNzHPFyy9gY2tVxGQ1h6DQqbtNjBE436Tm43mntQ", "12D3KooWB4Rigrxc9dB4rsRMG1y7i5LLpDsjx7M4tRXaybE4pKak", "12D3KooWQSFrshDiG1cRrc9mufJuoYT3fXHiJXXURxvJdPVAp8YH", "12D3KooWFH8Lkew96pawup9m9N2Q9XNT3FQBAak8o5t57SKeCMFB", "12D3KooWA79TCwRW2zuYNNEGEqA3XvCCRHskSSpaDsBmEZ62iZb8", "12D3KooWLAH2KAy7APEqa9MGX3ozw6pW9Z2krFR8NT3S5KQE6LWh", "12D3KooWEhVjBkBELM4pwRsZQg2rdkaWZEebCBLHhu5QbsqcSrnm", "12D3KooWEPTY3tZtDcm16fDFWxkS9xNNZh9xyfvWLoCcys9N9a7Q"]
+
+        peers = ["12D3KooWDcpWuyrMTDinqNgmXAuRdfd2mTdY9VoXZSAet2pDzh6r", "12D3KooWHCJbJKGDfCgHSoCuK9q4STyRnVveqLoXAPBbXHTZx9Cv"]
+
+        for p <- peers par:
+            on p:
+                infos <- Peer.identify()
+                success <<- true
+
+        -- join infos[Op.array_length(peers) - 1]
+        -- par Peer.timeout(PARTICLE_TTL / 2, "")
+
+        join success[0]
+
+    status: *string
+    -- join success[0]
+    -- status <<- "ok"
+    stat = status!
+    -- success <<- true
+    -- on "12D3KooWDcpWuyrMTDinqNgmXAuRdfd2mTdY9VoXZSAet2pDzh6r":
+    --     Op.noop()
+
+    <- infos
+
+func get_infos1() -> []Info:
+    success: ?bool
+    on HOST_PEER_ID:
+        peers = ["12D3KooWDcpWuyrMTDinqNgmXAuRdfd2mTdY9VoXZSAet2pDzh6r", "12D3KooWHCJbJKGDfCgHSoCuK9q4STyRnVveqLoXAPBbXHTZx9Cv"]
+
+        for p <- peers par:
+            on p:
+                Peer.identify()
+                success <<- true
+
+        join success[0]
+
+        join success[0]
+
+    on "12D3KooWDcpWuyrMTDinqNgmXAuRdfd2mTdY9VoXZSAet2pDzh6r":
+        Op.noop()
+
+    <- []

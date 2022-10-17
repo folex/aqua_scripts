@@ -35,6 +35,8 @@ func get_infos_par(peers: []PeerId) -> []Info:
     for p <- peers par:
         on p:
             infos <- Peer.identify()
+
     join infos[Op.array_length(peers) - 1] -- "-1" because it's 0-based
     par Peer.timeout(PARTICLE_TTL / 2, "")
+
     <- infos
