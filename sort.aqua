@@ -1,0 +1,11 @@
+func sort() -> []string:
+    sorted = ["f", "o", "l", "e", "x"]
+    unsorted = [["o", "ooo"], ["x", "xxx"], ["f", "fff"], ["l", "lll"], ["e", "eee"]]
+
+    sorted_result: *string
+    for s <- sorted:
+        for u <- unsorted:
+            if s == u[0]:
+                sorted_result <<- u[1]
+
+    <- sorted_result
