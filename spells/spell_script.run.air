@@ -5,7 +5,21 @@
 
 (seq
  (seq
-  (call %init_peer_id% ("getDataSrv" "spell_id") [] spell_id)
+  (seq
+   (seq
+    (call %init_peer_id% ("getDataSrv" "spell_id") [] spell_id)
+    (call %init_peer_id% (spell_id "get_u32") ["first-time-here?"] value-0)
+   )
+   (xor
+    (match value-0.$.success! false
+     (seq
+      (call %init_peer_id% (spell_id "set_u32") ["first-time-here?" 1])
+      (call %init_peer_id% (spell_id "set_u32") ["seen-folex" 0])
+     )
+    )
+    (call %init_peer_id% ("op" "noop") [])
+   )
+  )
   (call %init_peer_id% (spell_id "get_u32") ["seen-folex"] value)
  )
  (xor
