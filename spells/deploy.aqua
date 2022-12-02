@@ -1,0 +1,38 @@
+import "@fluencelabs/aqua-lib/builtin.aqua"
+import "spell_api.aqua"
+
+service SpellMgr("spell"):
+    install(script: string, period: u64) -> string
+    remove(spell_id: string)
+    list() ->  []string
+
+service File("file"):
+    load(path: string) -> string
+
+service Console("run-console"):
+    print(s: string)
+
+func deploy_spell(path: string, period: u64) -> string:
+    script <- File.load(path)
+    Console.print(script)
+    on HOST_PEER_ID:
+        id <- SpellMgr.install(script, period)
+    <- id
+
+-- const SPELL_ID = "2df7c176-b60a-4e4d-8109-3ae9bb6577e2"
+const SPELL_ID = "a311c33d-cbc2-4538-8114-f97956357b3b"
+
+func query_spell() -> bool:
+    on HOST_PEER_ID:
+        Spell SPELL_ID
+        value <- Spell.get_u32("seen-folex")
+        first_time <- Spell.get_u32("first-time-here?")
+        errors <- Spell.get_all_errors()
+    Console.print(Debug.stringify(value))
+    Console.print(Debug.stringify(first_time))
+    Console.print(Debug.stringify(errors))
+    <- true
+
+func remove_spell():
+    on HOST_PEER_ID:
+        SpellMgr.remove(SPELL_ID)
