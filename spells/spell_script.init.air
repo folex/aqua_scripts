@@ -3,18 +3,27 @@
 ; If you find any bugs, please write an issue on GitHub: https://github.com/fluencelabs/aqua/issues
 ; Aqua version: 0.8.0-367
 
-(seq
+(xor
  (seq
-  (call %init_peer_id% ("getDataSrv" "spell_id") [] spell_id)
-  (call %init_peer_id% (spell_id "get_u32") ["first-time-here?"] value)
- )
- (xor
-  (match value.$.success! false
+  (seq
    (seq
-    (call %init_peer_id% (spell_id "set_u32") ["first-time-here?" 1])
-    (call %init_peer_id% (spell_id "set_u32") ["seen-folex" 0])
+    (call %init_peer_id% ("getDataSrv" "-relay-") [] -relay-)
+    (call %init_peer_id% ("getDataSrv" "spell_id") [] spell_id)
    )
+   (call %init_peer_id% (spell_id "get_u32") ["first-time-here?"] value)
   )
-  (call %init_peer_id% ("op" "noop") [])
+  (xor
+   (match value.$.success! false
+    (xor
+     (seq
+      (call %init_peer_id% (spell_id "set_u32") ["first-time-here?" 1])
+      (call %init_peer_id% (spell_id "set_u32") ["times-run" 0])
+     )
+     (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 1])
+    )
+   )
+   (call %init_peer_id% ("op" "noop") [])
+  )
  )
+ (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 2])
 )

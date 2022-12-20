@@ -7,17 +7,17 @@ func init(spell_id: string):
     value <- Spell.get_u32("first-time-here?")
     if value.success == false: -- most likely it does not exists
         Spell.set_u32("first-time-here?", 1)
-        Spell.set_u32("seen-folex", 0)
+        Spell.set_u32("times-run", 0)
 
 
 func run(spell_id: string):
     init(spell_id)
 
     Spell spell_id
-    value <- Spell.get_u32("seen-folex")
+    value <- Spell.get_u32("times-run")
     if value.success:
         inc = value.num + 1
-        set <- Spell.set_u32("seen-folex", inc)
+        set <- Spell.set_u32("times-run", inc)
         if set.success == false:
             set_error = LastError(
                 error_code = 1,

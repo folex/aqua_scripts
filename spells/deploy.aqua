@@ -4,7 +4,7 @@ import "spell_api.aqua"
 service SpellMgr("spell"):
     install(script: string, period: u64) -> string
     remove(spell_id: string)
-    list() ->  []string
+    list() -> []string
 
 service File("file"):
     load(path: string) -> string
@@ -19,20 +19,35 @@ func deploy_spell(path: string, period: u64) -> string:
         id <- SpellMgr.install(script, period)
     <- id
 
--- const SPELL_ID = "2df7c176-b60a-4e4d-8109-3ae9bb6577e2"
-const SPELL_ID = "a311c33d-cbc2-4538-8114-f97956357b3b"
+-- const SPELL_ID = "2df7c176-b60a-4e4d-8109-3ae9bb6577e2",
+-- const SPELL_ID = "a311c33d-cbc2-4538-8114-f97956357b3b",
+-- const SPELL_ID = "aed8ab37-7f69-4964-9b69-442116f69411",
+-- const SPELL_ID = "9829b903-0ced-4f97-b2ac-6edf63dc5264",
+-- const SPELL_ID = "34586bed-8323-40e9-802b-24ecb49838f4",
+-- const SPELL_ID = "8b11b0d9-ff95-4854-8a98-ab35d45d418d"
+const SPELL_ID = "90dd6402-61b3-49d5-8142-7e89542cf5e6"
 
 func query_spell() -> bool:
     on HOST_PEER_ID:
         Spell SPELL_ID
-        value <- Spell.get_u32("seen-folex")
-        first_time <- Spell.get_u32("first-time-here?")
+        seen_folex <- Spell.get_u32("times-run")
         errors <- Spell.get_all_errors()
-    Console.print(Debug.stringify(value))
-    Console.print(Debug.stringify(first_time))
-    Console.print(Debug.stringify(errors))
+    Console.print(Debug.stringify(["I have seen folex", seen_folex.num, "times"]))
     <- true
 
-func remove_spell():
+func write_kv() -> U32Value:
     on HOST_PEER_ID:
-        SpellMgr.remove(SPELL_ID)
+        Spell SPELL_ID
+        init <- Spell.get_u32("test")
+        inc = init.num + 1
+        Spell.set_u32("test", inc)
+        get <- Spell.get_u32("test")
+    Console.print(Debug.stringify(inc))
+    <- get
+
+func remove_old_spells():
+    old_spells = ["2df7c176-b60a-4e4d-8109-3ae9bb6577e2", "a311c33d-cbc2-4538-8114-f97956357b3b", "aed8ab37-7f69-4964-9b69-442116f69411", "9829b903-0ced-4f97-b2ac-6edf63dc5264", "34586bed-8323-40e9-802b-24ecb49838f4", "8b11b0d9-ff95-4854-8a98-ab35d45d418d"]
+    on HOST_PEER_ID:
+        try:
+            for spell <- old_spells par:
+                    SpellMgr.remove(spell)
