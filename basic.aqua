@@ -40,3 +40,10 @@ func get_infos_par(peers: []PeerId) -> []Info:
     par Peer.timeout(PARTICLE_TTL / 2, "")
 
     <- infos
+
+-- using 'run --on'
+service SSig("sig"):
+    get_peer_id() -> string
+
+func get_peer_id_on() -> PeerId:
+    <- SSig.get_peer_id()

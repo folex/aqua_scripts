@@ -1,0 +1,53 @@
+import "@fluencelabs/aqua-lib/builtin.aqua"
+import "@fluencelabs/spell/api.aqua"
+import "@fluencelabs/spell/spell_service.aqua"
+import "@fluencelabs/registry/subnetwork.aqua"
+
+const KEY = "joined_deals"
+
+service Console("run-console"):
+    print(any: ⊤)
+
+data Deal:
+    deal_id: string
+    spell_id: string
+
+service DealJson("json"):
+    parse(s: string) -> Deal
+
+func resolve():
+    on HOST_PEER_ID:
+        deal_id = "df196f94e1695eacb0e9245c56605547d580cf7c"
+        workers <- resolveSubnetwork(deal_id)
+    Console.print(workers)
+
+func list() -> string:
+    print = (any: ⊤):
+        Console.print(any)
+
+    services: *[]Service
+
+    on HOST_PEER_ID:
+        Spell "decider"
+        s <- Spell.list_get_strings(KEY)
+        for raw_deal <- s.strings par:
+            deal <- DealJson.parse(raw_deal)
+            print(deal)
+            workers <- resolveSubnetwork(deal.deal_id)
+            if workers != nil:
+                for w <- workers!:
+                    on w.metadata.peer_id via w.metadata.relay_id:
+                        list <- Srv.list()
+                        services <<- list
+                        aliases: *string
+                        for service <- list:
+                            aliases <<- service.aliases[0]
+                        prefix = Op.concat_strings(deal.deal_id, ": ")
+                        msg = Op.concat_strings(prefix, Debug.stringify(aliases))
+                        print(msg)
+            else:
+                print([deal.deal_id, "workers are nil"])
+
+    join services[s.strings.length * 2]
+
+    <- "OK"

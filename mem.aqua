@@ -1,0 +1,40 @@
+import "@fluencelabs/aqua-lib/builtin.aqua"
+import "@fluencelabs/spell/api.aqua"
+
+-- func SSrv("srv"):
+--     info(id: string)
+
+func stat(id: string) -> StatResult:
+    on HOST_PEER_ID:
+        x <- Stat.service_stat(id)
+    <- x
+
+func memory(id: string) -> []MemoryStat:
+    on HOST_PEER_ID:
+        x <- Stat.service_memory(id)
+    <- x
+
+data SStat:
+   id: string
+   mem: []MemoryStat
+   info: Service
+
+func spells_memory() -> []SStat:
+   result: *SStat
+   on HOST_PEER_ID:
+        spells <- PeerSpell.list()
+        for spell_id <- spells:
+            info <- Srv.info(spell_id)
+            mem_stat <- Stat.service_memory(spell_id)
+            result <<- SStat(id = spell_id, mem = mem_stat, info = info)
+   <- result
+
+func services_memory() -> []SStat:
+   result: *SStat
+   on HOST_PEER_ID:
+        srvs <- Srv.list()
+        for srv <- srvs:
+            info <- Srv.info(srv.id)
+            mem_stat <- Stat.service_memory(srv.id)
+            result <<- SStat(id = srv.id, mem = mem_stat, info = info)
+   <- result
