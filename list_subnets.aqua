@@ -23,7 +23,8 @@ func resolve():
 
 func list() -> string:
     print = (any: ⊤):
-        Console.print(any)
+        on INIT_PEER_ID via HOST_PEER_ID:
+            Console.print(any)
 
     services: *[]Service
 
