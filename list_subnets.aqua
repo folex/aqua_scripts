@@ -15,36 +15,44 @@ data Deal:
 service DealJson("json"):
     parse(s: string) -> Deal
 
+service SOp("op"):
+    concat_strings(s: string, s: string, s: string, s: string, s: string, s: string, s: string) -> string
+
 func resolve():
     on HOST_PEER_ID:
         deal_id = "df196f94e1695eacb0e9245c56605547d580cf7c"
         workers <- resolveSubnetwork(deal_id)
     Console.print(workers)
 
+
+-- aqua run --verbose -i list_subnets.aqua -f 'list_decider(["12D3KooWHCJbJKGDfCgHSoCuK9q4STyRnVveqLoXAPBbXHTZx9Cv","12D3KooWMigkP4jkVyufq5JnDJL6nXvyjeaDNpRfEZqQhsG3sYCU","12D3KooWMMGdfVEJ1rWe1nH1nehYDzNEHhg5ogdfiGk88AupCMnf","12D3KooWJ4bTHirdTFNZpCS72TAzwtdmavTBkkEXtzo6wHL25CtE","12D3KooWAKNos2KogexTXhrkMZzFYpLHuWJ4PgoAhurSAv7o5CWA","12D3KooWDcpWuyrMTDinqNgmXAuRdfd2mTdY9VoXZSAet2pDzh6r"])' --addr stage-01 --timeout 60000
 func list_decider(peers: []PeerId) -> string:
     print = (any: ⊤):
-        on INIT_PEER_ID via HOST_PEER_ID:
-            Console.print(any)
+        co Console.print(any)
 
     print(peers)
 
     for peer <- peers:
         services: *[]Service
+        -- print(peer)
         on peer:
-            print(peer)
             Spell "decider"
             s <- Spell.list_get_strings(KEY)
+            -- print(SOp.concat_strings(Debug.stringify(s.strings.length), " joined deals", "", "", ""))
             for raw_deal <- s.strings par:
                 deal <- DealJson.parse(raw_deal)
                 spell_info <- Srv.info(deal.spell_id)
-                on spell_info.worker_id:
+                on spell_info.worker_id via peer:
                     worker_services <- Srv.list()
                     services <<- worker_services
                     aliases: *string
                     for service <- worker_services:
-                        aliases <<- service.aliases[0]
-                    prefix = Op.concat_strings(deal.deal_id, ": ")
-                    msg = Op.concat_strings(prefix, Debug.stringify(aliases))
+                        if service.aliases.length > 0:
+                            aliases <<- service.aliases[0]
+                        else:
+                            aliases <<- "NO ALIAS"
+                    deal_idx <- SOp.concat_strings(Debug.stringify(services.length), "/", Debug.stringify(s.strings.length), "", "", "", "")
+                    msg <- SOp.concat_strings(peer, " ", deal_idx, " @ ", deal.deal_id, ": ", Debug.stringify(aliases))
                     print(msg)
             join services[s.strings.length - 1]
     <- "OK"
