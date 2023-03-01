@@ -39,10 +39,10 @@ func list_decider(peers: []PeerId) -> string:
             Spell "decider"
             s <- Spell.list_get_strings(KEY)
             -- print(SOp.concat_strings(Debug.stringify(s.strings.length), " joined deals", "", "", ""))
-            for raw_deal <- s.strings par:
+            for raw_deal <- s.strings:
                 deal <- DealJson.parse(raw_deal)
                 spell_info <- Srv.info(deal.spell_id)
-                on spell_info.worker_id via peer:
+                on spell_info.worker_id:
                     worker_services <- Srv.list()
                     services <<- worker_services
                     aliases: *string
@@ -55,7 +55,56 @@ func list_decider(peers: []PeerId) -> string:
                     msg <- SOp.concat_strings(peer, " ", deal_idx, " @ ", deal.deal_id, ": ", Debug.stringify(aliases))
                     print(msg)
             join services[s.strings.length - 1]
+
+    dummy: *string
+    join dummy[1]
     <- "OK"
+
+data Worker:
+   peer_id: string
+   relay_id: string
+   services: string
+
+data DealWorkers:
+    deal_id: string
+    peers: []Worker
+
+func list_resolve() -> []DealWorkers:
+    print = (any: ⊤):
+        co Console.print(any)
+
+    deals: *DealWorkers
+
+    on HOST_PEER_ID:
+        Spell "decider"
+        s <- Spell.list_get_strings(KEY)
+        for raw_deal <- s.strings:
+            deal <- DealJson.parse(raw_deal)
+
+            peers: *Worker
+            workers <- resolveSubnetwork(deal.deal_id)
+            if workers != nil:
+                 for w <- workers!:
+                    on w.metadata.peer_id via w.metadata.relay_id:
+                        worker_services <- Srv.list()
+                        aliases: *string
+                        for service <- worker_services:
+                            if service.aliases.length > 0:
+                                aliases <<- service.aliases[0]
+                            else:
+                                aliases <<- "NO ALIAS"
+                        peers <<- Worker(peer_id = w.metadata.peer_id, relay_id = w.metadata.relay_id!, services = Debug.stringify(aliases))
+            deals <<- DealWorkers(deal_id = deal.deal_id, peers = peers)
+
+    join deals[s.strings.length - 1]
+
+    for d <- deals:
+        Console.print("")
+        Console.print("")
+        Console.print(SOp.concat_strings("deal: ", d.deal_id, "", "", "", "", ""))
+        for p <- d.peers:
+            Console.print(SOp.concat_strings(p.services, " @ ", p.peer_id, " @ ", p.relay_id, "", ""))
+    <- []
 
 -- func list_decider_stream(peers: []PeerId) -> string:
 --     print = (any: ⊤):
@@ -95,41 +144,3 @@ func list_decider(peers: []PeerId) -> string:
 --     for w <- found_workers:
 --         Console.print(w)
 --     <- "OK"
-
-func list_resolve() -> string:
-    print = (any: ⊤):
-        on INIT_PEER_ID via HOST_PEER_ID:
-            Console.print(any)
-
-    services: *[]Service
-
-    on HOST_PEER_ID:
-        Spell "decider"
-        s <- Spell.list_get_strings(KEY)
-        for raw_deal <- s.strings par:
-            deal <- DealJson.parse(raw_deal)
-            print(deal)
-
-            -- spell_id = deal.spell_id
-            -- spell_info <- Srv.info(spell_id)
-            -- on spell_info.worker_id via HOST_PEER_ID:
-            --     worker_services <- Srv.list()
-
-            workers <- resolveSubnetwork(deal.deal_id)
-            if workers != nil:
-                for w <- workers!:
-                    on w.metadata.peer_id via w.metadata.relay_id:
-                        list <- Srv.list()
-                        services <<- list
-                        aliases: *string
-                        for service <- list:
-                            aliases <<- service.aliases[0]
-                        prefix = Op.concat_strings(deal.deal_id, ": ")
-                        msg = Op.concat_strings(prefix, Debug.stringify(aliases))
-                        print(msg)
-            else:
-                print([deal.deal_id, "workers are nil"])
-
-    join services[s.strings.length]
-
-    <- "OK"
