@@ -49,6 +49,45 @@ func list_decider(peers: []PeerId) -> string:
             join services[s.strings.length - 1]
     <- "OK"
 
+func list_decider_stream(peers: []PeerId) -> string:
+    print = (any: ⊤):
+        on INIT_PEER_ID via HOST_PEER_ID:
+            co Console.print(any)
+
+    -- print(peers)
+
+    found_workers: *DeployedWorker
+
+    on HOST_PEER_ID:
+        for peer <- peers par:
+            services: *[]Service
+            on peer:
+                Spell "decider"
+                s <- Spell.list_get_strings(KEY)
+                for raw_deal <- s.strings par:
+                    deal <- DealJson.parse(raw_deal)
+                    spell_info <- Srv.info(deal.spell_id)
+
+                    on spell_info.worker_id via peer:
+                        worker_services <- Srv.list()
+                        services <<- worker_services
+                        aliases: *string
+                        for service <- worker_services:
+                            if service.aliases.length > 0:
+                                aliases <<- service.aliases[0]
+                            else:
+                                aliases <<- "NO ALIAS"
+                        -- prefix = Op.concat_strings(deal.deal_id, ": ")
+                        -- msg = Op.concat_strings(prefix, Debug.stringify(aliases))
+                        -- print(msg)
+                        worker = DeployedWorker(peer_id = peer, deal_id = deal.deal_id, services = aliases)
+                        found_workers <<- worker
+                join services[s.strings.length - 1]
+
+    for w <- found_workers:
+        Console.print(w)
+    <- "OK"
+
 func list_resolve() -> string:
     print = (any: ⊤):
         on INIT_PEER_ID via HOST_PEER_ID:
