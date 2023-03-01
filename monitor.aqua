@@ -1,0 +1,62 @@
+import "@fluencelabs/aqua-lib/builtin.aqua"
+import "@fluencelabs/spell/api.aqua"
+import "@fluencelabs/spell/spell_service.aqua"
+
+
+data WorkerSpell:
+    worker: Service
+    services_on_worker_id: []Service
+
+data Deal:
+    deal_id: string
+    spell_id: string
+
+service DealJson("json"):
+    parse(s: string) -> Deal
+
+data NodeMonitor:
+    services: []Service
+    spells: []string
+    decider_id: string
+    from_block: ?string
+    deals: []Deal
+    worker_spells: []WorkerSpell
+
+func monitor() -> NodeMonitor:
+    on HOST_PEER_ID:
+        srvs <- Srv.list()
+        spells <- PeerSpell.list()
+        -- Check decider
+        id: *string
+        try:
+            id <<- Srv.resolve_alias("decider")
+            -- Check from_block
+            Spell "decider"
+            x <- Spell.get_string("from_block")
+            from_block <- Json.parse(x.str)
+            -- Check joined deals
+            parsed_deals: *Deal
+            deals <- Spell.list_get_strings("joined_deals")
+            if deals.success:
+                for s <- deals.strings:
+                   parsed_deals <<- DealJson.parse(s)
+        otherwise:
+            id <<- "can't resolve"
+        --
+        worker_spells: *WorkerSpell
+        for spell_id <- spells:
+            spell_info <- Srv.info(spell_id)
+            if spell_info.aliases.length > 0:
+                if spell_info.aliases[0] == "worker-spell":
+                    on spell_info.worker_id via HOST_PEER_ID:
+                        wsrvs <- Srv.list()
+                    worker_spells <<- WorkerSpell(worker = spell_info, services_on_worker_id = wsrvs)
+    m = NodeMonitor(
+        services = srvs,
+        spells = spells,
+        decider_id = id!,
+        from_block = [from_block],
+        worker_spells = worker_spells,
+        deals = parsed_deals
+    )
+    <- m

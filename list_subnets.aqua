@@ -21,7 +21,35 @@ func resolve():
         workers <- resolveSubnetwork(deal_id)
     Console.print(workers)
 
-func list() -> string:
+func list_decider(peers: []PeerId) -> string:
+    print = (any: ⊤):
+        on INIT_PEER_ID via HOST_PEER_ID:
+            Console.print(any)
+
+    print(peers)
+
+    for peer <- peers:
+        services: *[]Service
+        on peer:
+            print(peer)
+            Spell "decider"
+            s <- Spell.list_get_strings(KEY)
+            for raw_deal <- s.strings par:
+                deal <- DealJson.parse(raw_deal)
+                spell_info <- Srv.info(deal.spell_id)
+                on spell_info.worker_id:
+                    worker_services <- Srv.list()
+                    services <<- worker_services
+                    aliases: *string
+                    for service <- worker_services:
+                        aliases <<- service.aliases[0]
+                    prefix = Op.concat_strings(deal.deal_id, ": ")
+                    msg = Op.concat_strings(prefix, Debug.stringify(aliases))
+                    print(msg)
+            join services[s.strings.length - 1]
+    <- "OK"
+
+func list_resolve() -> string:
     print = (any: ⊤):
         on INIT_PEER_ID via HOST_PEER_ID:
             Console.print(any)
@@ -34,6 +62,12 @@ func list() -> string:
         for raw_deal <- s.strings par:
             deal <- DealJson.parse(raw_deal)
             print(deal)
+
+            -- spell_id = deal.spell_id
+            -- spell_info <- Srv.info(spell_id)
+            -- on spell_info.worker_id via HOST_PEER_ID:
+            --     worker_services <- Srv.list()
+
             workers <- resolveSubnetwork(deal.deal_id)
             if workers != nil:
                 for w <- workers!:
@@ -49,6 +83,6 @@ func list() -> string:
             else:
                 print([deal.deal_id, "workers are nil"])
 
-    join services[s.strings.length * 2]
+    join services[s.strings.length]
 
     <- "OK"
