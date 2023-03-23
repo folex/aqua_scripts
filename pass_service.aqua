@@ -1,0 +1,9 @@
+service Foo:
+    foo()
+
+func b(foo: Foo):
+    a = foo.foo()
+
+func a():
+    Foo "foo"
+    b(Foo)

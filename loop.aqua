@@ -1,0 +1,18 @@
+service Console("run-console"):
+    print(any: ⊤)
+
+func looping(arr: []string) -> []string, []u32:
+    result: *string
+    n: *u32
+    n <<- 0
+    for i <- n:
+        Console.print(i)
+        result <<- arr[i]
+        if true:
+            n <<- i + 1
+    <- result, n
+
+func bug() -> string:
+    arr: *string
+    for a <- arr:
+        <- a
