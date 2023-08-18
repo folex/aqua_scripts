@@ -1,0 +1,19 @@
+module ResolveSubnet declares resolve_subnet
+
+export resolve_subnet
+
+data Worker:
+  host_id: string
+  worker_id: string
+
+data Subnet:
+  workers: []Worker
+  error: []string
+
+service Connector("fluence_aurora_connector"):
+    resolve_subnet(deal_id: string, api_endpoint: string) -> Subnet
+
+func resolve_subnet(deal_id: string, api_endpoint: string) -> Subnet:
+    on HOST_PEER_ID:
+        subnet <- Connector.resolve_subnet(deal_id, api_endpoint)
+    <- subnet

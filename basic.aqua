@@ -15,10 +15,20 @@ func hello_world_remote(name: string) -> string:
         from_peer_msg <- Op.concat_strings(from_msg, HOST_PEER_ID)
     <- from_peer_msg
 
+data NewInfo:
+    external_addresses: string
+    node_version: string
+    air_version: string
+    spell_version: string
+    allowed_binaries: string
+
+service Pee("peer"):
+    identify() -> NewInfo
+
 -- request response
-func get_info() -> Info, PeerId:
+func get_info() -> NewInfo, PeerId:
     on HOST_PEER_ID:
-        info <- Peer.identify()
+        info <- Pee.identify()
     <- info, HOST_PEER_ID
 
 -- iterate through several peers

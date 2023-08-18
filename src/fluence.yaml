@@ -1,0 +1,184 @@
+# yaml-language-server: $schema=.fluence/schemas/fluence.json
+
+# Defines Fluence Project
+# Most importantly - what exactly you want to deploy and how
+# You can use `fluence init` command to generate a template for new Fluence project
+
+# A map with worker names as keys and worker configs as values
+workers:
+# # worker name
+  defaultWorker:
+    services: [] # list of service names to be deployed to this worker
+    spells: [] # list of spell names to be deployed to this worker
+
+
+# A map with worker names as keys and deals as values
+deals:
+# # worker name
+  defaultWorker:
+    minWorkers: 1 # required amount of workers to activate the deal
+    targetWorkers: 3 # max amount of workers in the deal
+
+
+# Path to the aqua file or directory with aqua files that you want to compile by default.
+# Must be relative to the project root dir
+aquaInputPath: src/aqua/main.aqua
+
+
+# nox multiaddresses that will be used by cli to connect to the Fluence network.
+# can be a list of multiaddresses or a name of the network.
+relays: "kras" # default: kras
+
+
+# config version
+version: 2
+
+# # A map with service names as keys and service configs as values.
+# # Service names must start with a lowercase letter and contain only letters numbers and underscores.
+# # You can use `fluence service new` or `fluence service add` command to add a service
+# services:
+#   # service name
+#   myService:
+#     # Path to service directory, service config or URL to the tar.gz archive that contains the service
+#     get: "src/services/myService"
+#     # A map of modules that you want to override for this service
+#     overrideModules:
+#       # module name
+#       moduleName:
+#         # environment variables accessible by a particular module
+#         # with standard Rust env API like this: std::env::var(IPFS_ADDR_ENV_NAME)
+#         # Module environment variables could be examined with repl
+#         envs:
+#           ENV_VARIABLE: "env variable string value"
+#
+#         # Set true to allow module to use the Marine SDK logger
+#         loggerEnabled: true
+#
+#         # manages the logging targets, described in detail: https://fluence.dev/docs/marine-book/marine-rust-sdk/developing/logging#using-target-map
+#         loggingMask: 1
+#
+#         # Max size of the heap that a module can allocate in format:
+#         # [number][whitespace?][specificator?]
+#         # where ? is an optional field and specificator is one from the following (case-insensitive):
+#         # K, Kb - kilobyte
+#         # Ki, KiB - kibibyte
+#         # M, Mb - megabyte
+#         # Mi, MiB - mebibyte
+#         # G, Gb - gigabyte
+#         # Gi, GiB - gibibyte
+#         # Current limit is 4 GiB
+#         maxHeapSize: 1KiB
+#
+#         # A map of binary executable files that module is allowed to call
+#         mountedBinaries:
+#           curl: "/usr/bin/curl"
+#
+#         # A map of accessible files and their aliases.
+#         # Aliases should be used in Marine module development because it's hard to know the full path to a file
+#         volumes:
+#           alias: "some/alias/path"
+#
+#
+# # A map with spell names as keys and spell configs as values
+# spells:
+#   # spell name
+#   mySpell:
+#     # Path to spell config or directory with spell config
+#     get: "src/spells/mySpell"
+#
+#     # overrides for the spell:
+#
+#     # Path to Aqua file which contains an Aqua function that you want to use as a spell
+#     aquaFilePath: "src/spells/mySpell/spell.aqua"
+#     # Name of the Aqua function that you want to use as a spell
+#     function: main
+#     # A map of Aqua function arguments names as keys and arguments values as values.
+#     # These arguments will be passed to the spell function and will be stored in the key-value storage for this particular spell.
+#     initArgs:
+#       someArg: someArgStringValue
+#     # Trigger the spell execution periodically
+#     # If you want to disable this property by overriding it
+#     # pass an empty config for it like this: `clock: {}`
+#     clock:
+#       # How often the spell will be executed.
+#       # If set to 0, the spell will be executed only once.
+#       # If this value not provided at all - the spell will never be executed
+#       periodSec: 3
+#       # How long to wait before the first execution in seconds.
+#       # If this property or `startTimestamp` not specified, periodic execution will start immediately.
+#       # WARNING! Currently your computer's clock is used to determine a final timestamp that is sent to the server.
+#       # If it is set to 0 - the spell will never be executed
+#       # This property conflicts with `startTimestamp`. You can specify only one of them
+#       startDelaySec: 1
+#       # An ISO timestamp when the periodic execution should start.
+#       # If this property or `startDelaySec` not specified, periodic execution will start immediately.
+#       startTimestamp: '2023-07-06T23:59:59Z'
+#       # How long to wait before the last execution in seconds.
+#       # If this property or `endTimestamp` not specified, periodic execution will never end.
+#       # WARNING! Currently your computer's clock is used to determine a final timestamp that is sent to the server.
+#       # If it is in the past at the moment of spell creation - the spell will never be executed.
+#       # This property conflicts with `endTimestamp`. You can specify only one of them
+#       endDelaySec: 0
+#       # An ISO timestamp when the periodic execution should end.
+#       # If this property or `endDelaySec` not specified, periodic execution will never end.
+#       # If it is in the past at the moment of spell creation on Rust peer - the spell will never be executed
+#       endTimestamp: '2023-07-06T23:59:59Z'
+#
+#
+# # A list of paths to be considered by aqua compiler to be used as imports.
+# # First dependency in the list has the highest priority
+# #
+# # Priority of imports is considered in the following order:
+# # 1. imports from --import flags,
+# # 2. imports from aquaImports property in fluence.yaml
+# # 3. project's .fluence/aqua dir
+# # 4. npm dependencies from fluence.yaml
+# # 5. npm dependencies from user's .fluence/config.yaml
+# # 6. npm dependencies recommended by fluence
+# aquaImports:
+#   - "./node_modules"
+#
+#
+# # Path to the default compilation target dir from aqua to ts
+# # Must be relative to the project root dir
+# aquaOutputTSPath: "src/ts/src/aqua"
+#
+#
+# # Path to the default compilation target dir from aqua to js
+# # Must be relative to the project root dir
+# # Overrides 'aquaOutputTSPath' property
+# aquaOutputJSPath: "src/js/src/aqua"
+#
+#
+# # The network in which the transactions will be carried out
+# chainNetwork: testnet # default: local
+#
+#
+# # The version of the CLI that is compatible with this project.
+# # You can set this to enforce a particular set of versions of all fluence components
+# cliVersion: 0.6.2-matching-3d5152b-2009-1.0
+#
+#
+# # (For advanced users) Overrides for the marine and mrepl dependencies and enumerates npm aqua dependencies
+# # You can check out current project dependencies using `fluence dep v` command
+# dependencies:
+#   # A map of npm dependency versions
+#   # CLI ensures dependencies are installed each time you run aqua
+#   # There are also some dependencies that are installed by default (e.g. @fluencelabs/aqua-lib)
+#   # You can check default dependencies using `fluence dep v --default`
+#   # use `fluence dep npm i` to install project npm dependencies
+#   npm:
+#     "@fluencelabs/aqua-lib": 0.7.1
+#
+#   # A map of cargo dependency versions
+#   # CLI ensures dependencies are installed each time you run commands that depend on Marine or Marine REPL
+#   # use `fluence dep cargo i` to install project cargo dependencies
+#   cargo:
+#     marine: 0.14.0
+#
+# # if you want to deploy your services to specific peerIds. Soon it will be deprecated in favor of `deals` property
+# hosts:
+#   # worker name
+#   defaultWorker:
+#     peerIds:
+#       - 12D3KooWDUszU2NeWyUVjCXhGEt1MoZrhvdmaQQwtZUriuGN1jTr

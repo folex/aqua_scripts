@@ -1,0 +1,75 @@
+import Spell, StringListValue from "@fluencelabs/spell/spell_service.aqua"
+import Ipfs from "@fluencelabs/aqua-ipfs/ipfs.aqua"
+import resolveSubnetwork from "@fluencelabs/registry/subnetwork.aqua"
+import Peer from "@fluencelabs/aqua-lib/builtin.aqua"
+
+const STREAM_LOG = "/tmp/ceramic_stream.log"
+const THRESHOLD_BYTES = 1073741824 -- 1 GB
+
+alias CID: string
+alias Path: string
+alias PeerId: string
+
+service CeramicStream("glaze"):
+    query(stream_id: string) -> ?CID
+
+service File("file"):
+    append(path: Path, s: string) -> u32
+    remove(path: Path)
+
+service Parquet("parquet"):
+    compress(path: Path) -> Path
+
+service Estuary("estuary"):
+    add(path: Path) -> CID
+
+-- Ran periodically
+func crawl_ceramic(stream_id: string):
+    Spell "spell"
+    tip <- CeramicStream.query(stream_id)
+    last_tip <- Spell.get_string("last_tip")
+    if tip! != last_tip.str:
+        value <- Ipfs.cat(tip!)
+        size <- File.append(STREAM_LOG, value.contents)
+        if size > THRESHOLD_BYTES:
+            parquet_file <- Parquet.compress(STREAM_LOG)
+            parquet_cid <- Estuary.add(parquet_file)
+            Spell.list_push_string("filecoin_files", parquet_cid)
+            File.remove(STREAM_LOG)
+            File.remove(parquet_file)
+
+func filecoin_files(host: PeerId, worker: PeerId) -> StringListValue:
+    on worker via host:
+        Spell "ceramic_crawler"
+        cids <- Spell.list_get_strings("filecoint_files")
+    <- cids
+
+func subnet_filecoin_files(deal_id: string) -> []StringListValue:
+    cids: *StringListValue
+    workers <- resolveSubnetwork(deal_id)
+    for w <- workers! par:
+        on w.metadata.peer_id via w.metadata.relay_id:
+            Spell "ceramic_crawler"
+            cids <- Spell.list_get_strings("filecoint_files")
+    join cids[workers.length - 1]
+    par Peer.timeout(PARTICLE_TTL / 2, "timed out")
+    <- cids
+
+
+
+-- -- Ran periodically
+-- func crawl_ceramic_long(stream_id: string):
+--     tip <- CeramicStream.query(stream_id)
+--     if tip != nil:
+--         last_tip <- Spell.get_string("last_tip")
+--         if last_tip.success:
+--             if tip != last_tip.value:
+--                 value <- Ipfs.cat(tip)
+--                 if value.success:
+--                     size <- File.append(STREAM_LOG, value.contents)
+--                     if size > THRESHOLD_BYTES:
+--                         parquet_file <- Parquet.compress(STREAM_LOG)
+--                         parquet_cid <- Estuary.add(parquet_file)
+--                         Spell.list_push_string("filecoin_files", parquet_cid)
+--                         File.remove(STREAM_LOG)
+--                         File.remove(parquet_file)

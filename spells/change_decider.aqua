@@ -1,0 +1,36 @@
+import "@fluencelabs/spell/spell_service.aqua"
+-- import "@fluencelabs/aqua-lib/builtin.aqua"
+
+func get_script() -> []string:
+    scripts: *string
+
+    peers = [ "12D3KooWBM3SdXWqGaawQDGQ6JprtwswEg3FWGvGhmgmMez1vRbR", "12D3KooWQdpukY3p2DhDfUfDgphAqsGu5ZUrmQ4mcHSGrRag6gQK", "12D3KooWRT8V5awYdEZm6aAV9HWweCEbhWd7df4wehqHZXAB7yMZ", "12D3KooWBzLSu9RL7wLP6oUowzCbkCj2AGBSXkHSJKuq4wwTfwof", "12D3KooWBf6hFgrnXwHkBnwPGMysP3b1NJe5HGtAWPYfwmQ2MBiU", "12D3KooWPisGn7JhooWhggndz25WM7vQ2JmA121EV8jUDQ5xMovJ" ]
+
+    for p <- peers:
+        on p:
+            Spell "decider"
+            script <- Spell.get_string("worker_script")
+            scripts <<- script.str
+    <- scripts
+
+service Console("run-console"):
+    print(a: ⊤)
+
+service Json("json"):
+  parse(str: string) -> string
+  stringify(obj: ⊤) -> string
+
+func set_script(script: string) -> []UnitValue:
+    results: *UnitValue
+
+    peers = [ "12D3KooWBM3SdXWqGaawQDGQ6JprtwswEg3FWGvGhmgmMez1vRbR", "12D3KooWQdpukY3p2DhDfUfDgphAqsGu5ZUrmQ4mcHSGrRag6gQK", "12D3KooWRT8V5awYdEZm6aAV9HWweCEbhWd7df4wehqHZXAB7yMZ", "12D3KooWBzLSu9RL7wLP6oUowzCbkCj2AGBSXkHSJKuq4wwTfwof", "12D3KooWBf6hFgrnXwHkBnwPGMysP3b1NJe5HGtAWPYfwmQ2MBiU", "12D3KooWPisGn7JhooWhggndz25WM7vQ2JmA121EV8jUDQ5xMovJ" ]
+
+    for p <- peers:
+        on p:
+            Spell "decider"
+            jscript <- Json.stringify(script)
+            results <- Spell.set_string("worker_script", jscript)
+
+    <- results
+
+-- (call %init_peer_id% (\"run-console\" \"print\") [\"azaza\"])

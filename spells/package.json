@@ -1,0 +1,17 @@
+{
+  "name": "spells",
+  "version": "1.0.0",
+  "description": "``` aqua -i spell_script.aqua --air --scheduled -o . aqua run -i . -f 'deploy_spell(\"spell_script.run.air\", 10)' --addr stage-01 --plugin . ```",
+  "main": "index.js",
+  "scripts": {
+    "compile": "echo '{}' | jq -c --arg script \"$(cat air/change_decider.main.air| awk '{$1=$1};1')\" '{\"script\": $script}' > data.json",
+    "get_script": "fluence run -i change_decider.aqua -f 'get_script()' --relay /ip4/127.0.0.1/tcp/9991/ws/p2p/12D3KooWBM3SdXWqGaawQDGQ6JprtwswEg3FWGvGhmgmMez1vRbR",
+    "set_script": "npm run compile && fluence run -i change_decider.aqua --relay /ip4/127.0.0.1/tcp/9991/ws/p2p/12D3KooWBM3SdXWqGaawQDGQ6JprtwswEg3FWGvGhmgmMez1vRbR -f 'set_script(script)' --data-path data.json"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@fluencelabs/spell": "unstable",
+    "@fluencelabs/installation-spell": "file:/Users/folex/Development/fluencelabs/spell/src/aqua/installation-spell"
+  }
+}

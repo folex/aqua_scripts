@@ -1,19 +1,28 @@
 networks:
   fluence:
-    driver: bridge
-    ipam:
-      config:
-      - subnet: 10.50.10.0/24
 
 services:
   fluence-1:
-    image: docker.fluence.dev/marine:marine-e2e
+    image: docker.fluence.dev/nox:ipfs_alpha-decider_3020_1
     ports:
       - 7771:7771
       - 9991:9991
+      - 8881:8881
+    environment:
+      # FLUENCE_ENV_AQUA_IPFS_EXTERNAL_API_MULTIADDR: "/ip4/10.50.10.100/tcp/5001"
+      # FLUENCE_ENV_CONNECTOR_API_ENDPOINT: http://deal-aurora:8545
+      FLUENCE_ENV_CONNECTOR_FROM_BLOCK: 0x253fee1
+      # FLUENCE_ENV_AQUA_IPFS_LOCAL_API_MULTIADDR: "/ip4/10.50.10.100/tcp/5001"
+      # RUST_LOG: "info,aquamarine=warn,tokio_threadpool=info,tokio_reactor=info,mio=info,tokio_io=info,soketto=info,yamux=info,multistream_select=info,libp2p_secio=info,libp2p_websocket::framed=info,libp2p_ping=info,libp2p_core::upgrade::apply=info,libp2p_kad::kbucket=info,cranelift_codegen=info,wasmer_wasi=info,cranelift_codegen=info,wasmer_wasi=info,run-console=debug"
+      WASM_LOG: "trace"
+      RUST_LOG: "debug,aquamarine::aqua_runtime=error,ipfs_effector=off,ipfs_pure=off,system_services=debug,marine_core::module::marine_module=info,aquamarine=warn,tokio_threadpool=info,tokio_reactor=info,mio=info,tokio_io=info,soketto=info,yamux=info,multistream_select=info,libp2p_secio=info,libp2p_websocket::framed=info,libp2p_ping=info,libp2p_core::upgrade::apply=info,libp2p_kad::kbucket=info,cranelift_codegen=info,wasmer_wasi=info,cranelift_codegen=info,wasmer_wasi=info,run-console=trace,wasmtime_cranelift=off,wasmtime_jit=off,libp2p_tcp=off,libp2p_swarm=off,particle_protocol::libp2p_protocol::upgrade=info,libp2p_mplex=off,particle_reap=off,netlink_proto=warn"
+      FLUENCE_SYSTEM_SERVICES__ENABLE: "aqua-ipfs,decider"
+      FLUENCE_ENV_CONNECTOR_WALLET_KEY: "3639cc2d3d27abf76509077efc0be6093290f0f8739c00bdda6504b9d9fc66c2"
+      FLUENCE_ENV_CONNECTOR_CONTRACT_ADDRESS: "0x48772E71Ee51946beC258D4127eDDF110A7dCbeD"
     command:
       - -t=7771
       - -w=9991
+      - -s=8881
       #- -x=127.0.0.1
       # - --bootstraps=/dns/fluence-1/tcp/7771
       - --local
@@ -24,16 +33,28 @@ services:
       - -k=hK62afickoeP2uZbmSkAYXxxqP8ozq16VRN7qfTP719EHC5V5tjrtW57BSjUr8GvsEXmJRbtejUWyPZ2rZMyQdq
     networks:
       fluence:
-        ipv4_address: 10.50.10.10
 
   fluence-2:
-    image: docker.fluence.dev/marine:marine-e2e
+    image: docker.fluence.dev/nox:ipfs_alpha-decider_3020_1
     ports:
       - 7772:7772
       - 9992:9992
+      - 8882:8882
+    environment:
+      # FLUENCE_ENV_AQUA_IPFS_EXTERNAL_API_MULTIADDR: "/ip4/10.50.10.100/tcp/5001"
+      # FLUENCE_ENV_CONNECTOR_API_ENDPOINT: http://deal-aurora:8545
+      FLUENCE_ENV_CONNECTOR_FROM_BLOCK: 0x253fee1
+      # FLUENCE_ENV_AQUA_IPFS_LOCAL_API_MULTIADDR: "/ip4/10.50.10.100/tcp/5001"
+      # RUST_LOG: "info,aquamarine=warn,tokio_threadpool=info,tokio_reactor=info,mio=info,tokio_io=info,soketto=info,yamux=info,multistream_select=info,libp2p_secio=info,libp2p_websocket::framed=info,libp2p_ping=info,libp2p_core::upgrade::apply=info,libp2p_kad::kbucket=info,cranelift_codegen=info,wasmer_wasi=info,cranelift_codegen=info,wasmer_wasi=info,run-console=debug"
+      WASM_LOG: "trace"
+      RUST_LOG: "debug,aquamarine::aqua_runtime=error,ipfs_effector=off,ipfs_pure=off,system_services=debug,marine_core::module::marine_module=info,aquamarine=warn,tokio_threadpool=info,tokio_reactor=info,mio=info,tokio_io=info,soketto=info,yamux=info,multistream_select=info,libp2p_secio=info,libp2p_websocket::framed=info,libp2p_ping=info,libp2p_core::upgrade::apply=info,libp2p_kad::kbucket=info,cranelift_codegen=info,wasmer_wasi=info,cranelift_codegen=info,wasmer_wasi=info,run-console=trace,wasmtime_cranelift=off,wasmtime_jit=off,libp2p_tcp=off,libp2p_swarm=off,particle_protocol::libp2p_protocol::upgrade=info,libp2p_mplex=off,particle_reap=off,netlink_proto=warn"
+      FLUENCE_SYSTEM_SERVICES__ENABLE: "aqua-ipfs,decider"
+      FLUENCE_ENV_CONNECTOR_WALLET_KEY: "3639cc2d3d27abf76509077efc0be6093290f0f8739c00bdda6504b9d9fc66c2"
+      FLUENCE_ENV_CONNECTOR_CONTRACT_ADDRESS: "0x48772E71Ee51946beC258D4127eDDF110A7dCbeD"
     command:
       - -t=7772
       - -w=9992
+      - -s=8882
       #- -x=127.0.0.1
       - --bootstraps=/dns/fluence-1/tcp/7771
       - --allow-private-ips
@@ -43,16 +64,28 @@ services:
       - -k=2WijTVdhVRzyZamWjqPx4V4iNMrajegNMwNa2PmvPSZV6RRpo5M2fsPWdQr22HVRubuJhhSw8BrWiGt6FPhFAuXy
     networks:
       fluence:
-        ipv4_address: 10.50.10.20
 
   fluence-3:
-    image: docker.fluence.dev/marine:marine-e2e
+    image: docker.fluence.dev/nox:ipfs_alpha-decider_3020_1
     ports:
       - 7773:7773
       - 9993:9993
+      - 8883:8883
+    environment:
+      # FLUENCE_ENV_AQUA_IPFS_EXTERNAL_API_MULTIADDR: "/ip4/10.50.10.100/tcp/5001"
+      # FLUENCE_ENV_CONNECTOR_API_ENDPOINT: http://deal-aurora:8545
+      FLUENCE_ENV_CONNECTOR_FROM_BLOCK: 0x253fee1
+      # FLUENCE_ENV_AQUA_IPFS_LOCAL_API_MULTIADDR: "/ip4/10.50.10.100/tcp/5001"
+      # RUST_LOG: "info,aquamarine=warn,tokio_threadpool=info,tokio_reactor=info,mio=info,tokio_io=info,soketto=info,yamux=info,multistream_select=info,libp2p_secio=info,libp2p_websocket::framed=info,libp2p_ping=info,libp2p_core::upgrade::apply=info,libp2p_kad::kbucket=info,cranelift_codegen=info,wasmer_wasi=info,cranelift_codegen=info,wasmer_wasi=info,run-console=debug"
+      WASM_LOG: "trace"
+      RUST_LOG: "debug,aquamarine::aqua_runtime=error,ipfs_effector=off,ipfs_pure=off,system_services=debug,marine_core::module::marine_module=info,aquamarine=warn,tokio_threadpool=info,tokio_reactor=info,mio=info,tokio_io=info,soketto=info,yamux=info,multistream_select=info,libp2p_secio=info,libp2p_websocket::framed=info,libp2p_ping=info,libp2p_core::upgrade::apply=info,libp2p_kad::kbucket=info,cranelift_codegen=info,wasmer_wasi=info,cranelift_codegen=info,wasmer_wasi=info,run-console=trace,wasmtime_cranelift=off,wasmtime_jit=off,libp2p_tcp=off,libp2p_swarm=off,particle_protocol::libp2p_protocol::upgrade=info,libp2p_mplex=off,particle_reap=off,netlink_proto=warn"
+      FLUENCE_SYSTEM_SERVICES__ENABLE: "aqua-ipfs,decider"
+      FLUENCE_ENV_CONNECTOR_WALLET_KEY: "3639cc2d3d27abf76509077efc0be6093290f0f8739c00bdda6504b9d9fc66c2"
+      FLUENCE_ENV_CONNECTOR_CONTRACT_ADDRESS: "0x48772E71Ee51946beC258D4127eDDF110A7dCbeD"
     command:
       - -t=7773
       - -w=9993
+      - -s=8883
       #- -x=127.0.0.1
       - --bootstraps=/dns/fluence-1/tcp/7771
       - --allow-private-ips
@@ -62,61 +95,96 @@ services:
       - -k=2n2wBVanBeu2GWtvKBdrYK9DJAocgG3PrTUXMharq6TTfxqTL4sLdXL9BF23n6rsnkAY5pR9vBtx2uWYDQAiZdrX
     networks:
       fluence:
-        ipv4_address: 10.50.10.30
 
-  fluence-4:
-    image: docker.fluence.dev/marine:marine-e2e
-    ports:
-      - 7774:7774
-      - 9994:9994
-    command:
-      - -t=7774
-      - -w=9994
-      #- -x=127.0.0.1
-      - --bootstraps=/dns/fluence-1/tcp/7771
-      - --allow-private-ips
-      - --external-maddrs
-      - /dns4/fluence-4/tcp/7774
-      # 12D3KooWBzLSu9RL7wLP6oUowzCbkCj2AGBSXkHSJKuq4wwTfwof
-      - -k=4zp8ucAikkjB8CmkufYiFBW4QCDUCbQG7yMjviX7W8bMyN5rfChQ2Pi5QCWThrCTbAm9uq5nbFbxtFcNZq3De4dX
-    networks:
-      fluence:
-        ipv4_address: 10.50.10.40
+  # fluence-4:
+  #   image: docker.fluence.dev/nox:ipfs_alpha-decider_3020_1
+  #   ports:
+  #     - 7774:7774
+  #     - 9994:9994
+  # - 8884:8884
+  # environment:
+      # FLUENCE_ENV_AQUA_IPFS_EXTERNAL_API_MULTIADDR: "/ip4/10.50.10.100/tcp/5001"
+      # FLUENCE_ENV_CONNECTOR_API_ENDPOINT: http://deal-aurora:8545
+  #     FLUENCE_ENV_CONNECTOR_FROM_BLOCK: 0x253fee1
+      # FLUENCE_ENV_AQUA_IPFS_LOCAL_API_MULTIADDR: "/ip4/10.50.10.100/tcp/5001"
+  #     # RUST_LOG: "info,aquamarine=warn,tokio_threadpool=info,tokio_reactor=info,mio=info,tokio_io=info,soketto=info,yamux=info,multistream_select=info,libp2p_secio=info,libp2p_websocket::framed=info,libp2p_ping=info,libp2p_core::upgrade::apply=info,libp2p_kad::kbucket=info,cranelift_codegen=info,wasmer_wasi=info,cranelift_codegen=info,wasmer_wasi=info,run-console=debug"
+  #     WASM_LOG: "trace"
+  #     RUST_LOG: "debug,aquamarine::aqua_runtime=error,ipfs_effector=off,ipfs_pure=off,system_services=debug,marine_core::module::marine_module=info,aquamarine=warn,tokio_threadpool=info,tokio_reactor=info,mio=info,tokio_io=info,soketto=info,yamux=info,multistream_select=info,libp2p_secio=info,libp2p_websocket::framed=info,libp2p_ping=info,libp2p_core::upgrade::apply=info,libp2p_kad::kbucket=info,cranelift_codegen=info,wasmer_wasi=info,cranelift_codegen=info,wasmer_wasi=info,run-console=trace,wasmtime_cranelift=off,wasmtime_jit=off,libp2p_tcp=off,libp2p_swarm=off,particle_protocol::libp2p_protocol::upgrade=info,libp2p_mplex=off,particle_reap=off,netlink_proto=warn"
+  # FLUENCE_SYSTEM_SERVICES__ENABLE: "aqua-ipfs,decider"
+  # FLUENCE_ENV_CONNECTOR_WALLET_KEY: "3639cc2d3d27abf76509077efc0be6093290f0f8739c00bdda6504b9d9fc66c2"
+  #  FLUENCE_ENV_CONNECTOR_CONTRACT_ADDRESS: "0x48772E71Ee51946beC258D4127eDDF110A7dCbeD"
+  # command:
+  #     - -t=7774
+  #     - -w=9994
+  # - -s=8884
+  #     #- -x=127.0.0.1
+  #     - --bootstraps=/dns/fluence-1/tcp/7771
+  #     - --allow-private-ips
+  #     - --external-maddrs
+  #     - /dns4/fluence-4/tcp/7774
+  #     # 12D3KooWBzLSu9RL7wLP6oUowzCbkCj2AGBSXkHSJKuq4wwTfwof
+  #     - -k=4zp8ucAikkjB8CmkufYiFBW4QCDUCbQG7yMjviX7W8bMyN5rfChQ2Pi5QCWThrCTbAm9uq5nbFbxtFcNZq3De4dX
+  #   networks:
+  #     fluence:
 
-  fluence-5:
-    image: docker.fluence.dev/marine:marine-e2e
-    ports:
-      - 7775:7775
-      - 9995:9995
-    command:
-      - -t=7775
-      - -w=9995
-      #- -x=127.0.0.1
-      - --bootstraps=/dns/fluence-1/tcp/7771
-      - --allow-private-ips
-      - --external-maddrs
-      - /dns4/fluence-5/tcp/7775
-      # 12D3KooWBf6hFgrnXwHkBnwPGMysP3b1NJe5HGtAWPYfwmQ2MBiU
-      - -k=3ry26rm5gkJXvdqRH4FoM3ezWq4xVVsBQF7wtKq4E4pbuaa6p1F84tNqifUS7DdfJL9hs2gcdW64Wc342vHZHMUp
-    networks:
-      fluence:
-        ipv4_address: 10.50.10.50
+  # fluence-5:
+  #   image: docker.fluence.dev/nox:ipfs_alpha-decider_3020_1
+  #   ports:
+  #     - 7775:7775
+  #     - 9995:9995
+  # - 8885:8885
+  # environment:
+      # FLUENCE_ENV_AQUA_IPFS_EXTERNAL_API_MULTIADDR: "/ip4/10.50.10.100/tcp/5001"
+      # FLUENCE_ENV_CONNECTOR_API_ENDPOINT: http://deal-aurora:8545
+  #     FLUENCE_ENV_CONNECTOR_FROM_BLOCK: 0x253fee1
+      # FLUENCE_ENV_AQUA_IPFS_LOCAL_API_MULTIADDR: "/ip4/10.50.10.100/tcp/5001"
+  #     # RUST_LOG: "info,aquamarine=warn,tokio_threadpool=info,tokio_reactor=info,mio=info,tokio_io=info,soketto=info,yamux=info,multistream_select=info,libp2p_secio=info,libp2p_websocket::framed=info,libp2p_ping=info,libp2p_core::upgrade::apply=info,libp2p_kad::kbucket=info,cranelift_codegen=info,wasmer_wasi=info,cranelift_codegen=info,wasmer_wasi=info,run-console=debug"
+  #     WASM_LOG: "trace"
+  #     RUST_LOG: "debug,aquamarine::aqua_runtime=error,ipfs_effector=off,ipfs_pure=off,system_services=debug,marine_core::module::marine_module=info,aquamarine=warn,tokio_threadpool=info,tokio_reactor=info,mio=info,tokio_io=info,soketto=info,yamux=info,multistream_select=info,libp2p_secio=info,libp2p_websocket::framed=info,libp2p_ping=info,libp2p_core::upgrade::apply=info,libp2p_kad::kbucket=info,cranelift_codegen=info,wasmer_wasi=info,cranelift_codegen=info,wasmer_wasi=info,run-console=trace,wasmtime_cranelift=off,wasmtime_jit=off,libp2p_tcp=off,libp2p_swarm=off,particle_protocol::libp2p_protocol::upgrade=info,libp2p_mplex=off,particle_reap=off,netlink_proto=warn"
+  # FLUENCE_SYSTEM_SERVICES__ENABLE: "aqua-ipfs,decider"
+  # FLUENCE_ENV_CONNECTOR_WALLET_KEY: "3639cc2d3d27abf76509077efc0be6093290f0f8739c00bdda6504b9d9fc66c2"
+   # FLUENCE_ENV_CONNECTOR_CONTRACT_ADDRESS: "0x48772E71Ee51946beC258D4127eDDF110A7dCbeD"
+  # command:
+  #     - -t=7775
+  #     - -w=9995
+  # - -s=8885
+  #     #- -x=127.0.0.1
+  #     - --bootstraps=/dns/fluence-1/tcp/7771
+  #     - --allow-private-ips
+  #     - --external-maddrs
+  #     - /dns4/fluence-5/tcp/7775
+  #     # 12D3KooWBf6hFgrnXwHkBnwPGMysP3b1NJe5HGtAWPYfwmQ2MBiU
+  #     - -k=3ry26rm5gkJXvdqRH4FoM3ezWq4xVVsBQF7wtKq4E4pbuaa6p1F84tNqifUS7DdfJL9hs2gcdW64Wc342vHZHMUp
+  #   networks:
+  #     fluence:
 
-  fluence-6:
-    image: docker.fluence.dev/marine:marine-e2e
-    ports:
-      - 7776:7776
-      - 9996:9996
-    command:
-      - -t=7776
-      - -w=9996
-      - --bootstraps=/dns/fluence-1/tcp/7771
-      - --allow-private-ips
-      #- -x=127.0.0.1
-      - --external-maddrs
-      - /dns4/fluence-6/tcp/7776
-      # 12D3KooWPisGn7JhooWhggndz25WM7vQ2JmA121EV8jUDQ5xMovJ
-      - -k=5Qh8bB1sF28uLPwr3HTvEksCeC6mAWQvebCfcgv9y6j4qKwSzNKm2tzLUg4nACUEo2KZpBw11gNCnwaAdM7o1pEn
-    networks:
-      fluence:
-        ipv4_address: 10.50.10.60
+  # fluence-6:
+  #   image: docker.fluence.dev/nox:ipfs_alpha-decider_3020_1
+  #   ports:
+  #     - 7776:7776
+  #     - 9996:9996
+  # - 8886:8886
+  # environment:
+      # FLUENCE_ENV_AQUA_IPFS_EXTERNAL_API_MULTIADDR: "/ip4/10.50.10.100/tcp/5001"
+  #     FLUENCE_ENV_CONNECTOR_API_ENDPOINT: http://deal-aurora:8545
+  #     FLUENCE_ENV_CONNECTOR_FROM_BLOCK: 0x253fee1
+      # FLUENCE_ENV_AQUA_IPFS_LOCAL_API_MULTIADDR: "/ip4/10.50.10.100/tcp/5001"
+  #     # RUST_LOG: "info,aquamarine=warn,tokio_threadpool=info,tokio_reactor=info,mio=info,tokio_io=info,soketto=info,yamux=info,multistream_select=info,libp2p_secio=info,libp2p_websocket::framed=info,libp2p_ping=info,libp2p_core::upgrade::apply=info,libp2p_kad::kbucket=info,cranelift_codegen=info,wasmer_wasi=info,cranelift_codegen=info,wasmer_wasi=info,run-console=debug"
+  #     WASM_LOG: "trace"
+  #     RUST_LOG: "debug,aquamarine::aqua_runtime=error,ipfs_effector=off,ipfs_pure=off,system_services=debug,marine_core::module::marine_module=info,aquamarine=warn,tokio_threadpool=info,tokio_reactor=info,mio=info,tokio_io=info,soketto=info,yamux=info,multistream_select=info,libp2p_secio=info,libp2p_websocket::framed=info,libp2p_ping=info,libp2p_core::upgrade::apply=info,libp2p_kad::kbucket=info,cranelift_codegen=info,wasmer_wasi=info,cranelift_codegen=info,wasmer_wasi=info,run-console=trace,wasmtime_cranelift=off,wasmtime_jit=off,libp2p_tcp=off,libp2p_swarm=off,particle_protocol::libp2p_protocol::upgrade=info,libp2p_mplex=off,particle_reap=off,netlink_proto=warn"
+  #     FLUENCE_SYSTEM_SERVICES__ENABLE: "aqua-ipfs,decider"
+  #     FLUENCE_ENV_CONNECTOR_WALLET_KEY: "3639cc2d3d27abf76509077efc0be6093290f0f8739c00bdda6504b9d9fc66c2"
+  #     FLUENCE_ENV_CONNECTOR_CONTRACT_ADDRESS: "0x48772E71Ee51946beC258D4127eDDF110A7dCbeD"
+  #   command:
+  #     - -t=7776
+  #     - -w=9996
+  # - -s=8886
+  #     - --bootstraps=/dns/fluence-1/tcp/7771
+  #     - --allow-private-ips
+  #     #- -x=127.0.0.1
+  #     - --external-maddrs
+  #     - /dns4/fluence-6/tcp/7776
+  #     # 12D3KooWPisGn7JhooWhggndz25WM7vQ2JmA121EV8jUDQ5xMovJ
+  #     - -k=5Qh8bB1sF28uLPwr3HTvEksCeC6mAWQvebCfcgv9y6j4qKwSzNKm2tzLUg4nACUEo2KZpBw11gNCnwaAdM7o1pEn
+  #   networks:
+  #     fluence:

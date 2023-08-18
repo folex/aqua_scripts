@@ -19,12 +19,13 @@
   },
   "homepage": "https://github.com/folex/aqua_scripts#readme",
   "dependencies": {
+    "@fluencelabs/aqua-ipfs": "^0.5.13",
     "@fluencelabs/fluence": "^0.23.2",
     "@fluencelabs/fluence-network-environment": "^1.0.13"
   },
   "devDependencies": {
     "@fluencelabs/aqua-lib": "^0.7.0",
-    "@fluencelabs/spell": "^0.5.0",
-    "@fluencelabs/registry": "0.8.1"
+    "@fluencelabs/registry": "0.8.1",
+    "@fluencelabs/spell": "^0.5.11"
   }
 }
