@@ -14,26 +14,26 @@ export helloWorld, helloWorldRemote, getInfo, getInfos
 
 
 
--- -- example of running services deployed using `fluence deal deploy`
--- -- with worker 'defaultWorker' which has service 'MyService' with method 'greeting'
+-- example of running services deployed using `fluence deal deploy`
+-- with worker 'defaultWorker' which has service 'MyService' with method 'greeting'
 
--- export runDeployedServices
+export runDeployedServices
 
--- data Answer:
-    -- answer: string
-    -- peer: string
+data Answer:
+    answer: string
+    peer: string
 
--- func runDeployedServices() -> *Answer:
-    -- workersInfo <- getWorkersInfo()
-    -- dealId = workersInfo.deals.defaultWorker!.dealId
-    -- answers: *Answer
-    -- workers <- resolveSubnetwork(dealId)
-    -- for w <- workers!:
-        -- on w.metadata.peer_id via w.metadata.relay_id:
-            -- answer <- MyService.greeting("fluence")
-            -- answers <<- Answer(answer=answer, peer=w.metadata.relay_id!)
+func runDeployedServices() -> *Answer:
+    workersInfo <- getWorkersInfo()
+    dealId = workersInfo.deals.defaultWorker!.dealId
+    answers: *Answer
+    workers <- resolveSubnetwork(dealId)
+    for w <- workers!:
+        on w.metadata.peer_id via w.metadata.relay_id:
+            answer <- MyService.greeting("fluence")
+            answers <<- Answer(answer=answer, peer=w.metadata.relay_id!)
 
-    -- <- answers
+    <- answers
 
 -- local
 func helloWorld(name: string) -> string:

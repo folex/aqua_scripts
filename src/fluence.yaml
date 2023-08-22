@@ -6,32 +6,34 @@
 
 # A map with worker names as keys and worker configs as values
 workers:
-# # worker name
+  # # worker name
   defaultWorker:
-    services: [] # list of service names to be deployed to this worker
+    services: [ myService ] # list of service names to be deployed to this worker
     spells: [] # list of spell names to be deployed to this worker
-
 
 # A map with worker names as keys and deals as values
 deals:
-# # worker name
+  # # worker name
   defaultWorker:
-    minWorkers: 1 # required amount of workers to activate the deal
-    targetWorkers: 3 # max amount of workers in the deal
-
+    minWorkers: 10 # required amount of workers to activate the deal
+    targetWorkers: 10 # max amount of workers in the deal
 
 # Path to the aqua file or directory with aqua files that you want to compile by default.
 # Must be relative to the project root dir
-aquaInputPath: src/aqua/main.aqua
-
+aquaInputPath: src/aqua/resolve_subnet.aqua
+aquaImports:
+  - src/aqua/main.aqua
 
 # nox multiaddresses that will be used by cli to connect to the Fluence network.
 # can be a list of multiaddresses or a name of the network.
-relays: "kras" # default: kras
-
+relays:
+  - /ip4/127.0.0.1/tcp/9991/ws/p2p/12D3KooWBM3SdXWqGaawQDGQ6JprtwswEg3FWGvGhmgmMez1vRbR
 
 # config version
 version: 2
+services:
+  myService:
+    get: src/services/myService
 
 # # A map with service names as keys and service configs as values.
 # # Service names must start with a lowercase letter and contain only letters numbers and underscores.
@@ -181,4 +183,4 @@ version: 2
 #   # worker name
 #   defaultWorker:
 #     peerIds:
-#       - 12D3KooWDUszU2NeWyUVjCXhGEt1MoZrhvdmaQQwtZUriuGN1jTr
+#       - 12D3KooWKnEqMfYo9zvfHmqTLpLdiHXPe4SVqUWcWHDJdFGrSmcA

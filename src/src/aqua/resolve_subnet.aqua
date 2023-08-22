@@ -1,0 +1,47 @@
+module ResolveSubnet
+
+export runDeployedServices
+
+import "workers.aqua"
+import "services.aqua"
+
+data Worker:
+    pat_id: string
+    host_id: string
+    worker_id: ?string
+
+data Subnet:
+    workers: []Worker
+    error: []string
+
+data Answer:
+    answer: ?string
+    worker: Worker
+
+service Console("run-console"):
+    print(msg: ⊤)
+
+service Connector("fluence_aurora_connector"):
+    resolve_subnet(dealId: string, apiEndpoint: string) -> Subnet
+
+func resolve_subnet(dealId: string) -> Subnet:
+    on HOST_PEER_ID:
+        subnet <- Connector.resolve_subnet(dealId, "http://deal-aurora:8545")
+    <- subnet
+
+func runDeployedServices() -> *Answer:
+    workersInfo <- getWorkersInfo()
+    dealId = workersInfo.deals.defaultWorker!.dealIdOriginal
+    answers: *Answer
+    subnet <- resolve_subnet(dealId)
+    Console.print(["subnet ", dealId])
+    Console.print(subnet)
+    for w <- subnet.workers:
+        if w.worker_id != nil:
+            on w.worker_id! via w.host_id:
+                answer <- MyService.greeting("fluence")
+                answers <<- Answer(answer=?[answer], worker = w)
+        else:
+            answers <<- Answer(answer=nil, worker = w)
+
+    <- answers

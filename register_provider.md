@@ -1,0 +1,15 @@
+rm -rf .fluence
+
+fluence compute-provider matching register --network local --privKey 0xc9b5b488586bf92ed1fe35a985b48b92392087e86da2011896c289e0010fc6bf
+
+fluence compute-provider matching addWorkersSlots --network local --privKey 0xc9b5b488586bf92ed1fe35a985b48b92392087e86da2011896c289e0010fc6bf 12D3KooWRT8V5awYdEZm6aAV9HWweCEbhWd7df4wehqHZXAB7yMZ 1
+
+fluence compute-provider matching addWorkersSlots --network local --privKey 0xc9b5b488586bf92ed1fe35a985b48b92392087e86da2011896c289e0010fc6bf 12D3KooWQdpukY3p2DhDfUfDgphAqsGu5ZUrmQ4mcHSGrRag6gQK 1
+
+fluence compute-provider matching addWorkersSlots --network local --privKey 0xc9b5b488586bf92ed1fe35a985b48b92392087e86da2011896c289e0010fc6bf 12D3KooWBM3SdXWqGaawQDGQ6JprtwswEg3FWGvGhmgmMez1vRbR 1
+
+fluence deal deploy --network local --privKey 0xc9b5b488586bf92ed1fe35a985b48b92392087e86da2011896c289e0010fc6bf
+
+fluence deal match --network local --privKey 0xc9b5b488586bf92ed1fe35a985b48b92392087e86da2011896c289e0010fc6bf 0x6dD1aFfe90415C61AeDf5c0ACcA9Cf5fD5031517
+
+fluence run -f 'runDeployedServices()'

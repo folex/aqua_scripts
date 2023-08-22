@@ -1,14 +1,11 @@
-# Fluence Minimal Template
+# Fluence Quickstart Template
 
 ## Usage
 
 ```sh
-# Generate a service template and add it to the default worker
-fluence service new myService
-
-# Deploy the default worker
+# You can deploy right away with an example worker that contains an example service
 fluence deal deploy
 
-# Uncomment `runDeployedServices` aqua function in `src/aqua/main.aqua` and run it
+# Run the deployed code
 fluence run -f 'runDeployedServices()'
 ```
