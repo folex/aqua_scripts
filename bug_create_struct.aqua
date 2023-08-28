@@ -1,0 +1,7 @@
+data Foo:
+    a: u32
+    b: u32
+    c: u32
+
+func bug():
+    f = Foo(a = 1, b = 2, c = 3, d = 4, whatever = "i", write = "here", will = "compile")
