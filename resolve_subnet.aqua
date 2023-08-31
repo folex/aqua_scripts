@@ -1,14 +1,20 @@
-module ResolveSubnet declares resolve_subnet
+module ResolveSubnet declares resolve_subnet, show_subnet
 
-export resolve_subnet
+export resolve_subnet, show_subnet
+
+import Srv, Service from "@fluencelabs/aqua-lib/builtin.aqua"
 
 data Worker:
+  pat_id: string
   host_id: string
-  worker_id: string
+  worker_id: ?string
 
 data Subnet:
   workers: []Worker
   error: []string
+
+service Console("run-console"):
+  print(a: ⊤)
 
 service Connector("fluence_aurora_connector"):
     resolve_subnet(deal_id: string, api_endpoint: string) -> Subnet
@@ -17,3 +23,27 @@ func resolve_subnet(deal_id: string, api_endpoint: string) -> Subnet:
     on HOST_PEER_ID:
         subnet <- Connector.resolve_subnet(deal_id, api_endpoint)
     <- subnet
+
+data WorkerServices:
+  worker_id: string
+  services: []string
+
+func show_subnet(deal_id: string, api_endpoint: string) -> []WorkerServices:
+  subnet <- resolve_subnet(deal_id, api_endpoint)
+
+  services: *WorkerServices
+  for w <- subnet.workers:
+    if w.worker_id != nil:
+      on w.worker_id! via w.host_id:
+        -- get list of all services on this worker
+        srvs <- Srv.list()
+
+        -- gather aliases
+        aliases: *string
+        for s <- srvs:
+          if s.aliases.length != 0:
+            aliases <<- s.aliases[0]
+
+        services <<- WorkerServices(worker_id = w.worker_id!, services = aliases)
+
+  <- services

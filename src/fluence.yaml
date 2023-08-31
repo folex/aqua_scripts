@@ -15,8 +15,8 @@ workers:
 deals:
   # # worker name
   defaultWorker:
-    minWorkers: 10 # required amount of workers to activate the deal
-    targetWorkers: 10 # max amount of workers in the deal
+    minWorkers: 3 # required amount of workers to activate the deal
+    targetWorkers: 3 # max amount of workers in the deal
 
 # Path to the aqua file or directory with aqua files that you want to compile by default.
 # Must be relative to the project root dir
@@ -27,7 +27,7 @@ aquaImports:
 # nox multiaddresses that will be used by cli to connect to the Fluence network.
 # can be a list of multiaddresses or a name of the network.
 relays:
-  - /ip4/127.0.0.1/tcp/9991/ws/p2p/12D3KooWBM3SdXWqGaawQDGQ6JprtwswEg3FWGvGhmgmMez1vRbR
+  - /ip4/127.0.0.1/tcp/9992/ws/p2p/12D3KooWQdpukY3p2DhDfUfDgphAqsGu5ZUrmQ4mcHSGrRag6gQK
 
 # config version
 version: 2
