@@ -1,0 +1,10 @@
+(xor
+ (seq
+  (call %init_peer_id% ("getDataSrv" "-relay-") [] -relay-)
+  (xor
+   (null)
+   (fail :error:)
+  )
+ )
+ (call %init_peer_id% ("errorHandlingSrv" "error") [:error: 0])
+)

@@ -1,0 +1,8 @@
+aqua Fire
+
+export forget
+
+func forget():
+    a = 1
+    on HOST_PEER_ID:
+        b = 2

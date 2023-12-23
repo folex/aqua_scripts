@@ -1,0 +1,39 @@
+import "@fluencelabs/spell/spell_service.aqua"
+import Peer from "@fluencelabs/aqua-lib/builtin.aqua"
+
+export deciderConfig, joined_deals
+
+service Console("run-console"):
+    print(any: ⊤)
+
+service Json("json"):
+    parse(s: string) -> ⊤
+
+func deciderConfig() -> ⊤, ⊤:
+    on HOST_PEER_ID:
+        Spell "decider"
+        chain <- Spell.get_string("chain")
+        worker <- Spell.get_string("worker_config")
+    chain_str <- Json.parse(chain.str)
+    worker_str <- Json.parse(worker.str)
+    <- chain_str, worker_str
+
+func joined_deals(peers: []string) -> []u32:
+    log = (any: ⊤):
+        Console.print(any)
+
+    counts: *u32
+    on HOST_PEER_ID:
+        for p <- peers par:
+            on p:
+                co log(p)
+                try:
+                    Spell "decider"
+                    deals <- Spell.list_get_strings("joined_deals")
+                    counts <<- deals.strings.length
+                    co log(deals.strings.length)
+                catch e:
+                    co log(e)
+        join counts[peers.length - 1]
+        par Peer.timeout(PARTICLE_TTL / 2, "")
+    <- counts

@@ -1,0 +1,9 @@
+data Log:
+    log: string
+
+func mapLogs() -> []string:
+    logs: *Log
+    result: *string
+    for log <- logs:
+        result <- log.log
+    <- result

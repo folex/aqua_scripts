@@ -1,0 +1,23 @@
+service Console("run-console"):
+    print(wtf: ⊤)
+
+func y() -> []string:
+    <- ["wtf"]
+
+func x() -> string:
+    arr <- y()
+    try:
+        a = arr[1]
+        Console.print(a)
+    catch e:
+        Console.print(e)
+    <- "haha"
+
+func z() -> string:
+    arr = nil
+    <- arr!
+
+func a() -> string:
+    on HOST_PEER_ID:
+        arr <- y()
+    <- arr[1]

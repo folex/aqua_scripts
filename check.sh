@@ -12,7 +12,7 @@ RELAY=$3
 if [ "$TARGET" = "all" ]; then
     echo "Will check all nodes on $ENVIRONMENT via relay $RELAY"
 
-    DATA=$(aqua config default_peers $ENVIRONMENT | jq -Rc '
+    DATA=$(fluence default peers $ENVIRONMENT | jq -Rc '
         [ inputs / "p2p/" | .[1] ] as $ids |
         {
             setup: [range(0, $ids | length) | . as $n | {
@@ -24,13 +24,13 @@ if [ "$TARGET" = "all" ]; then
         }')
 
     aqua run --verbose --timeout 2000000 \
-                -i check.aqua \
-                -f 'checkAllNodes(setup, timeout)' \
+                -i decider_config.aqua \
+                -f 'joinedDeals(setup, timeout)' \
                 --addr $RELAY\
                 --data "$DATA"
 elif [ "$TARGET" = "iter" ]; then
     echo "Will check all nodes on $ENVIRONMENT as separate 'aqua run' calls. Relay $RELAY"
-    aqua config default_peers testnet | jq -Rc '
+    fluence default peers testnet | jq -Rc '
     [ inputs / "p2p/" | .[1] ] as $ids |
     range(0, $ids | length) | . as $n |
     {
@@ -39,14 +39,14 @@ elif [ "$TARGET" = "iter" ]; then
         timeout: 5000,
         n: $n
     }' | sed 's/"/\\"/g' | xargs -L1 aqua run --verbose --timeout 20000 \
-            -i check.aqua \
+            -i decider_config.aqua \
             -f 'checkNodeIsUp(target, validators, timeout)' \
             --addr $RELAY\
             --data
 else
     echo "Will check node $TARGET on $ENVIRONMENT via $RELAY"
 
-    DATA=$(aqua config default_peers $ENVIRONMENT | jq --argjson TARGET $TARGET -R '
+    DATA=$(fluence default peers $ENVIRONMENT | jq --argjson TARGET $TARGET -R '
         [ inputs / "p2p/" | .[1] ] as $ids |
         {
             target: $ids[$TARGET],
@@ -55,7 +55,7 @@ else
         }')
 
     aqua run --verbose --timeout 20000 \
-        -i check.aqua \
+        -i decider_config.aqua \
         -f 'checkNodeIsUp(target, validators, timeout)' \
         --data "$DATA" \
         --addr $RELAY
