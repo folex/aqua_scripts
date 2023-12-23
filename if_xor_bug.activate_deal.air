@@ -1,0 +1,44 @@
+(xor
+ (seq
+  (seq
+   (call %init_peer_id% ("getDataSrv" "-relay-") [] -relay-)
+   (call %init_peer_id% ("getDataSrv" "deal_id") [] -deal_id-arg-)
+  )
+  (xor
+   (new -if-error-
+    (xor
+     (match false true
+      (new $option-inline
+       (seq
+        (xor
+         (ap 1 $option-inline)
+         (null)
+        )
+        (canon %init_peer_id% $option-inline  #option-inline-0)
+       )
+      )
+     )
+     (seq
+      (ap :error: -if-error-)
+      (xor
+       (match :error:.$.error_code 10001
+        (null)
+       )
+       (fail -if-error-)
+      )
+     )
+    )
+   )
+   (new $option-inline-1
+    (seq
+     (xor
+      (ap 1 $option-inline-1)
+      (null)
+     )
+     (canon %init_peer_id% $option-inline-1  #option-inline-1-0)
+    )
+   )
+  )
+ )
+ (call %init_peer_id% ("errorHandlingSrv" "error") [:error: 0])
+)

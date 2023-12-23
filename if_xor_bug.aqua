@@ -1,0 +1,31 @@
+aqua IfXorBug declares activate_deal
+
+export activate_deal
+
+ability Worker:
+    is_active(s: string) -> bool
+    activate(s: string)
+
+service Console("run-console"):
+    print(s: []⊤)
+
+func activate_deal(deal_id: string) -> string:
+    active = (s: string) -> bool:
+        <- false
+
+    nada = (s: string):
+        a = ?[1]
+
+    Worker = Worker(
+        is_active = active,
+        activate = nada,
+        log = nada
+    )
+    try:
+        if !Worker.is_active(deal_id):
+            Worker.activate(deal_id)
+            Console.print(["so", "not active"])
+    catch e:
+        Console.print(["oh no", e])
+
+    <- "THE END."
