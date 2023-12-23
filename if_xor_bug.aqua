@@ -9,9 +9,9 @@ ability Worker:
 service Console("run-console"):
     print(s: []⊤)
 
-func activate_deal(deal_id: string) -> string:
+func activate_deal(deal_id: string, am_i_really: bool) -> string:
     active = (s: string) -> bool:
-        <- false
+        <- am_i_really
 
     nada = (s: string):
         a = ?[1]
@@ -25,6 +25,8 @@ func activate_deal(deal_id: string) -> string:
         if !Worker.is_active(deal_id):
             Worker.activate(deal_id)
             Console.print(["so", "not active"])
+        else:
+            Console.print(["el sè"])
     catch e:
         Console.print(["oh no", e])
 
